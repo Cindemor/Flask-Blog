@@ -1,0 +1,106 @@
+#tag_list_capacity {
+    width: 100%;
+    height: 100%;
+    padding: 30px 50px 15px 50px;
+    margin-top: 30px;
+}
+table {
+    border-collapse:collapse;
+    font-size: 16px;
+    line-height: 1.5;
+    display: table;
+    width: calc(95% - 100px);
+}
+#tag_list_head {
+    display: table-header-group;
+    width: calc(95% - 100px);
+    height: 70px;
+}
+#tag_list_body {
+    font-size: 15px;
+    display: table-row-group;
+    width: calc(95% - 100px);
+    height: auto;
+}
+#tag_list_body tr{
+    background-color: #fafafa;
+    height: 70px;
+}
+#tag_list_body tr:hover{
+    background-color: #CEE3F6;
+    transition: 0.5s;
+}
+#tag_list_head tr {
+    background-color: #DCDCDC;    
+}
+#tag_list_head tr th{
+    width:20%;
+    padding: 10px 10px 10px 20px;
+    text-align: left;
+    box-shadow: 1px 1px 2px #999;
+    border-radius: 3px;
+}
+#tag_list_body tr td{
+    padding: 5px 10px 5px 20px;
+    border-radius: 1px;
+    text-align: left;
+    box-shadow: 1px 1px 2px #666;
+
+}
+#tag_list_head tr th div{
+    font-weight: bold;
+    box-sizing: border-box;
+    font-family: 宋体;
+    color: #666;
+}
+#tag_list_body tr td div{
+    box-sizing: border-box;
+    font-family: 宋体;
+    color: #666;
+}
+#tag_list_body input.delete,
+#tag_list_body input.edit {
+    padding-left: 0;
+    padding-right: 0;
+    width: 50px;
+    height: 30px;
+    margin-right: 35px;
+    border-radius: 5px;
+}
+#tag_list_body .edit 
+{
+    cursor: pointer;
+    background-color: #1890ff;
+    color: white;
+    border-style: none;
+    border: 1px solid #999;
+    box-shadow: 1px 1px 1px #999;
+}
+#tag_list_body .delete 
+{
+    cursor: pointer;
+    color: red;    
+    background-color: white;
+    border-style: none;
+    border: 1px solid #999;
+    box-shadow: 1px 1px 1px #999;
+}
+#tag_list_body .delete:hover
+{
+    color: white;    
+    background-color: red;
+    transition: all 0.3s;
+}
+#tag_list_body .delete:active
+{
+    background-color: darkred;
+}
+#tag_list_body .edit:hover
+{
+    background-color: #81BEF7;
+    transition: all 0.3s;
+}
+#tag_list_body .edit:active
+{
+    background-color: #2E64FE;
+}

@@ -1,0 +1,31 @@
+#all {
+    height: 100%;
+    width:100%;
+}
+#all_left {
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 240px;
+    height: 100%;
+    background-color:#323232;
+    left: 10px;
+}
+a {
+    color: #1890FF;    
+    text-decoration: none;
+}
+a:hover {
+    color: white;
+    transition: all 0.3s;
+}
+#all_content {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: absolute;
+    left: 250px;
+    top: 0;
+    height: 100%;
+    background-color: aliceblue;
+    width: 83%;
+}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>spidereyes博客后台系统</title>
+        <meta charset="UTF-8">
+        <link href="{{ url_for('static', filename='css/main.css' )}}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/content.css' )}}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/left.css' )}}" rel="stylesheet">
+    </head>
+    <body>
+        <div id="all">
+                <div id="all_left">
+                        <div id="left_logo">
+                            <h1 id="left_head">
+                                <a href="" id="refresh">
+                                    {{ siteclass.sitename }}
+                                </a>
+                            </h1>
+                        </div>
+                        <ul id="left_ul">
+                            <li>
+                                <a href="introduction.html#" id="choice_0">概述</a>
+                            </li>
+                            <li>
+                                <a href="#" id="choice_1" onclick="click_trans_change('article')">文章管理</a>
+                            </li>
+                            <ul id="change_1" style="height:auto; display: none; padding-left: 0px;">
+                                    <li>
+                                        <a href="article_manager.html#" id="hidden_a">文章列表</a>
+                                    </li>
+                                    <li>
+                                        <a href="article_create.html#" id="hidden_a">添加文章</a>
+                                    </li>
+                            </ul>
+                            <li>
+                                <a href="#" id="choice_2" onclick="click_trans_change('page')">页面管理</a>
+                            </li>
+                            <ul id="change_2" style="height:auto; display: none; padding-left: 0px;">
+                                    <li>
+                                        <a href="page_manager.html" id="hidden_a">页面列表</a>
+                                    </li>
+                                    <li>
+                                        <a href="page_create.html" id="hidden_a">添加页面</a>
+                                    </li>
+                            </ul>
+                            <li>
+                                <a href="#" id="choice_3" onclick="click_trans_change('tag')"">标签管理</a>
+                            </li>
+                            <ul id="change_3" style="height:auto; display: none; padding-left: 0px;">
+                                    <li>
+                                        <a href="tag_manager.html" id="hidden_a">标签列表</a>
+                                    </li>
+                                    <li>
+                                        <a href="tag_create.html" id="hidden_a">添加标签</a>
+                                    </li>
+                            </ul>
+                            <li class="active">
+                                <a href="{{ url_for('index_page') }}" id="choice_4" class="active">系统设置</a>
+                            </li>
+                        </ul>
+                </div>
+            </div>
+            <div id="all_content">
+                <div style="background-color: #323232; height: 30px; border: 3px solid #393939">
+                    <a href= "index.html#" id="content_menu" style="margin-left:30px;">首页</a>
+                    <font id="content_menu_font">/</font>
+                    <a href= "" id="content_menu">设置</a>
+                </div>
+                <hr>
+                <div id="setting_content">
+                    <font id="setting_header">基本设置<small style="font-size: 10px">（带<label style="color: red">*</label>的均不可为空）</small></font>
+                    <form action="/index" enctype="multipart/form-data" method="post">
+                        {{ form.csrf_token }}
+                        <p style="font-weight: bold;"><label style="color: red; font-size: 18px">*</label>站点名称</p>
+<!--                        <input class="text notnone_text" type="text" id="sitename" oninput="not_none(this, 0)"/>-->
+                        {{ form.Sitename(class="text notnone_text", id="sitename", oninput="not_none(this, 0)", value=siteclass.sitename) }}
+                        <p id="informations0"></p>
+                        <p style="font-weight: bold;">上传LOGO</p>
+                        <div class="pic_capacity" style="background: url({{ url_for('show_pic', filename=name) }}) no-repeat; background-size:120px 120px;">
+<!--                            <input class="pic_load" type="file" accept="image/gif, image/jpeg, image/png, image/jpg" />-->
+                            {{ form.Logo(class="pic_load", accept="image/gif, image/jpeg, image/png, image/jpg") }}
+                        </div>
+                        <p style="font-size:15px; color:#666;">尺寸最好为120x120px</p>
+                        <br>
+                        <p style="font-weight: bold;"><label style="color: red; font-size: 18px">*</label>站点描述</p>
+<!--                        <input class="text notnone_text" type="text" id="sitedesc" placeholder="默认与站点名称一致" onclick="ini_desc()" oninput="not_none(this, 1)"/>-->
+                        {{ form.Sitedesc(class="text notnone_text", id="sitedesc", oninput="not_none(this, 1)", value=desc_value) }}
+                        <p id="informations1"></p>
+                        <p style="font-weight: bold;">网站地址</p>
+<!--                        <input class="text" type="text" id="siteloc" placeholder="默认为当前url" onclick="ini_desc()"/>-->
+                        {{ form.Siteloc(class="text", id="siteloc", placeholder="默认为当前url", onclick="ini_desc()") }}
+                        {% for msg in form.Siteloc.errors %}
+                            <p style="color:red">{{ msg }}</p>
+                        {% endfor %}
+                        <p style="font-weight: bold;">GitHub地址</p>
+<!--                        <input class="text" type="text" id="sitegitloc"/>-->
+                        {{ form.Sitegitloc(class="text", id="sitegitloc") }}
+                        {% for msg in form.Sitegitloc.errors %}
+                            <p style="color:red">{{ msg }}</p>
+                        {% endfor %}
+                        <p style="font-weight: bold;">网站工信部备案号</p>
+<!--                        <input class="text" type="text" id="sitebeian0"/>-->
+                        {{ form.Sitebeian0(class="text", id="sitebeian0") }}
+                        <p style="font-weight: bold;">网站公安部备案号</p>
+<!--                        <input class="text" type="text" id="sitebeian1"/>-->
+                        {{ form.Sitebeian1(class="text", id="sitebeian1") }}
+                        <br>
+<!--                        <input class="submit" type="submit" value="提交" onclick="funny()">-->
+                        {{ form.Submit(class="submit", value="提交") }}
+<!--                        {% for msg in get_flashed_messages() %} {{ msg }} {% endfor %}-->
+                    </form>
+            </div>
+        </div>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/click_trans.js')}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/to_page.js' )}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.1.min.js' )}}"></script>
+    <script type="text/javascript">
+    $(".pic_load").change(
+        function()
+        {
+            var objURL = getURL(this.files[0]);
+            if(objURL){
+                $(".pic_capacity").css("background", "url(" + objURL + ")" + "no-repeat")
+                $(".pic_capacity").css("background-size", "120px 120px");
+
+            }
+        })
+        function getURL(file)
+        {
+            var url = null;
+            if(window.createObjectURL != undefined)
+            { // basic
+                url = window.createObjectURL(file);
+            } else if(window.URL != undefined)
+            { // mozilla(firefox)
+                url = window.URL.createObjectURL(file);
+            } else if(window.webkitURL != undefined)
+            { // webkit or chrome
+                url = window.webkitURL.createObjectURL(file);
+            }
+        return url;
+        }
+        function ini_desc()
+        {
+            document.getElementById("siteloc").value = window.location.href;
+        }
+
+    </script>
+</body>
+</html>

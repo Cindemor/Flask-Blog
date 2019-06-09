@@ -1,0 +1,75 @@
+#calendar {
+    position: relative;
+    width: 277px;
+    height: auto;
+    border: 1px solid #999;
+    padding: 10px 50px 10px 50px;
+}
+#calendar #next
+{
+    position: relative;
+    font-weight: bold;
+    top: -10px;
+    left: 0;
+    font-size: 15px;
+    font-family: 宋体;
+}
+#calendar #last
+{
+    position: relative;
+    font-weight: bold;
+    top: -10px;
+    left: calc(100% - 95px);
+    font-size: 15px;
+    font-family: 宋体;
+}
+#calendar #last:hover,
+#calendar #next:hover {
+    color: #393939;
+    transition: 0.3s;
+}
+#calendar #YandM {
+    margin-top: 10px;
+    margin-bottom: 0px;
+    text-align: center;
+}
+#calendar .week {
+    list-style: none;
+    height: auto;
+    padding-left: 30px;
+    margin-top: 10px;
+}
+#calendar .date {
+    list-style: none;
+    height: 180px;
+    padding-left: 30px;
+    margin-top: 10px;
+    line-height: 25px;
+    position: relative;
+}
+#calendar .week li {
+    float: left;
+    font-size: 15px;
+    font-family: 微软雅黑;
+    margin-right: 20px;
+}
+#calendar .date li {
+    width: 15px;
+    height: 20px;
+    list-style: none;
+    float: left;
+    font-size: 15px;
+    font-family: 微软雅黑;
+    margin-right: 20px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    cursor: pointer;
+    color: #1890ff;
+}
+#calendar .date li.today {
+    color: red;
+}
+#calendar .date li:hover,
+#calendar .date li.today:hover {
+    color: #393939;
+}
