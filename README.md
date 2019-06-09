@@ -2,7 +2,7 @@
 #### 模板数据传递结构
 
 ```
-pages
+pages 导航栏
 [
     {
         'name':'xxx',
@@ -12,7 +12,7 @@ pages
 ```
 
 ```
-posts
+posts 文章缩略
 [
     {
         'title':'xxx',
@@ -24,7 +24,7 @@ posts
 ```
 
 ```
-mp
+mp 文章目录
 [
     {
         'time':'xxx',
