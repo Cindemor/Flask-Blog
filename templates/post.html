@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+                {{ data.get_attr(3) }} - {{ data.get_attr(0) }}
+        </title>
+        <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/post.css') }}" type="text/css" media="all">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8">
+        <style>
+            @font-face {
+                font-family: iconfont;
+                src: url({{ url_for('static', filename='font/iconfont.ttf') }}) format("truetype");
+            }
+        </style>
+    </head>
+    <body>
+        <div id="Face">
+            <div id="ImgLayer" style="background-image: url({{ url_for('static', filename='img/background2.png') }});">
+                <div id="HeadInfo">
+                    <img id="Avatar" src="{{ url_for('static', filename='img/avatar.jpg') }}">
+                    <h1 id="Name">{{ data.get_attr(0) }}</h1>
+                </div>
+            </div>
+            <nav id="NavBar">
+                <a class="ChildSite" title="首页" href="/">首页</a>
+                <a class="ChildSite" title="归档" href="/archives">归档</a>
+                {% for site in data.get_attr(1) %}
+                    <a class="ChildSite" title="{{ site['name'] }}" href="{{ site['href'] }}">{{ site['name'] }}</a>
+                {% endfor %}
+                {% if data.get_attr(2) %}
+                    <a class="ChildSite" title="github" href="{{ data.get_attr(2) }}">
+                        <i id="github" class="iconfont"></i>
+                    </a>
+                {% endif %}
+            </nav>
+            <article id="article">
+                <h1 id="title">{{ data.get_attr(3) }}</h1>
+                <div id="date">{{ data.get_attr(4) }}</div>
+                <div id="content">
+                {% autoescape false %}
+                    {{ data.get_attr(11) }}
+                {% endautoescape %}
+                </div>
+                <div id="postinfo">
+                    {{ data.get_attr(5) }}
+                </div>
+            </article>
+            <nav id="ViewMore">
+            {% if data.get_attr(6) %}
+                <a id="PrevPage" title="{{ data.get_attr(6) }}" href="{{ data.get_attr(7) }}">« {{ data.get_attr(6) }}</a>
+            {% endif %}
+            {% if data.get_attr(8) %}
+                <a id="NextPage" title="{{ data.get_attr(8) }}" href="{{ data.get_attr(9) }}">{{ data.get_attr(8) }} »</a>
+            {% endif %}
+                <div id="FootCenter">
+                    <a id="FootArchive">&nbsp;</a>
+                </div>
+            </nav>
+        </div>
+        <div id="Footer">
+            © {{ data.get_attr(10) }} -  {{ data.get_attr(0) }}
+        </div>
+    </body>
+</html>

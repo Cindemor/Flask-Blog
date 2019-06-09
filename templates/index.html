@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            {{ data.get_attr(0) }}
+        </title>
+        <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" type="text/css" media="all">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8">
+        <style>
+            @font-face {
+                font-family: iconfont;
+                src: url({{ url_for('static', filename='font/iconfont.ttf') }}) format("truetype");
+            }
+        </style>
+    </head>
+    <body>
+        <div id="Face">
+            <div id="ImgLayer" style="background-image: url({{ url_for('static', filename='img/background.png') }});">
+                <div id="HeadInfo">
+                    <img id="Avatar" src="{{ url_for('static', filename='img/avatar.jpg') }}">
+                    <h1 id="Name">{{ data.get_attr(0) }}</h1>
+                </div>
+            </div>
+            <nav id="NavBar">
+                <a class="ChildSite" title="首页" href="#">首页</a>
+                <a class="ChildSite" title="归档" href="/archives">归档</a>
+            {% for site in data.get_attr(1) %}
+                <a class="ChildSite" title="{{ site['name'] }}" href="{{ site['href'] }}">{{ site['name'] }}</a>
+            {% endfor %}
+            {% if data.get_attr(2) %}
+                <a class="ChildSite" title="github" href="{{ data.get_attr(2) }}">
+                    <i id="github" class="iconfont"></i>
+                </a>
+            {% endif %}
+            </nav>
+            <!-- 标题、链接、作者日期、more --> 
+            <section id="Articles">
+            {% for post in data.get_attr(3) %}
+                <article class="Post">
+                    <h1 class="Title">
+                        <a title="{{ post['title'] }}" href="{{ post['href'] }}">{{ post['title'] }}</a>
+                    </h1>
+                    <div class="PostInfo">
+                        {{ post['ad'] }}
+                    </div>
+                    <div class="Entry">
+                    {% autoescape false %}
+                        {{ post['more'] }}
+                    {% endautoescape %}
+                        <p class="More">
+                            <a title="阅读全文" href="{{ post['href'] }}">阅读全文 »</a>
+                        </p>
+                    </div>
+                </article>
+            {% endfor %}
+            </section>
+            <nav id="ViewMore">
+                <!--<a id="PrevPage" title="上一页" href="#">« 上一页</a>
+                <a id="NextPage" title="下一页" href="#">下一页 »</a>-->
+                <div id="FootCenter">
+                    <a id="FootArchive" title="博客归档" href="/archives">博客归档</a>
+                </div>
+            </nav>
+        </div>
+        <div id="Footer">
+            © {{ data.get_attr(4) }} -  {{ data.get_attr(0) }}
+        </div>
+    </body>
+</html>

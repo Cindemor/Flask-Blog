@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            归档 - {{ data.get_attr(0) }}
+        </title>
+        <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/archives.css') }}" type="text/css" media="all">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8">
+        <style>
+            @font-face {
+                font-family: iconfont;
+                src: url({{ url_for('static', filename='font/iconfont.ttf') }}) format("truetype");
+            }
+        </style>
+    </head>
+    <body>
+        <div id="Face">
+            <div id="ImgLayer" style="background-image: url({{ url_for('static', filename='img/background1.png') }});">
+                <div id="HeadInfo">
+                    <img id="Avatar" src="{{ url_for('static', filename='img/avatar.jpg') }}">
+                    <h1 id="Name">{{ data.get_attr(0) }}</h1>
+                </div>
+            </div>
+            <nav id="NavBar">
+                <a class="ChildSite" title="首页" href="/">首页</a>
+                <a class="ChildSite" title="归档" href="#">归档</a>
+            {% for site in data.get_attr(1) %}
+                <a class="ChildSite" title="{{ site['name'] }}" href="{{ site['href'] }}">{{ site['name'] }}</a>
+            {% endfor %}
+            {% if data.get_attr(2) %}
+                <a class="ChildSite" title="github" href="{{ data.get_attr(2) }}">
+                    <i id="github" class="iconfont"></i>
+                </a>
+            {% endif %}
+            </nav>
+            <article id="Archive">
+                <h1 id="Title">归档</h1>
+            {% for month in data.get_attr(3) %}
+                <div class="MonthPost">
+                    <h3 class="Month">{{ month['time'] }}</h3>
+                    <ul class="MonthList">
+                    {% for article in month['articles'] %}
+                        <li class="MonthLine">
+                            <a class="ArticleLink" title="{{ article['title'] }}" href="{{ article['href'] }}">{{ article['title'] }}</a>
+                            &nbsp;
+                            <span class="date">{{ article['date'] }}</span>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+            </article>
+        </div>
+        <div id="Footer">
+            © {{ data.get_attr(4) }} -  {{ data.get_attr(0) }}
+        </div>
+    </body>
+</html>
