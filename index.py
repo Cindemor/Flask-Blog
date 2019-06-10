@@ -22,17 +22,19 @@ class index_view(views.View):
         git_title = cursor.fetchall()[0]
         title = git_title[0]
         github = git_title[1]
-        cursor.execute("select html, head from article_page where ispage = 1 and draft = 0")
+        cursor.execute("select html, head from article_page where ispage = 1 and draft = 0 order by unix_timestamp(article_date) desc")
         for i in cursor.fetchall():
             pages.append(dict({'name':i[1], 'href':"page/"+i[0]}))
-        cursor.execute("select head, html, unix_timestamp(article_date), author, markdown from article_page where ispage = 0 and draft = 0")
+        cursor.execute("select head, html, unix_timestamp(article_date), author, markdown from article_page"
+                       " where ispage = 0 and draft = 0 order by unix_timestamp(article_date) desc")
         post_infor = cursor.fetchall()
         print(post_infor)
         for j in post_infor:
             post_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(j[2]))
-            print(post_time)
             posts.append(dict({'title':j[0], 'href':'post/'+j[1], 'ad':j[3]+" 发布于 "+post_time, 'more':j[4]}))
         fuck = index_data(title, pages, github, posts, year)
+        cursor.close()
+        db.close()
         return render_template('index.html', data = fuck)
 
 class archives_view(views.View):
@@ -50,12 +52,12 @@ class archives_view(views.View):
         cursor.execute("select html, head from article_page where ispage = 1 and draft = 0")
         for i in cursor.fetchall():
             pages.append(dict({'name':i[1], 'href':"page/"+i[0]}))
-        cursor.execute("select substring(article_date, 1, 10), head, html from article_page where ispage = 0 and draft = 0 order by unix_timestamp(article_date)")
-        result = cursor.fetchall()
-        print(result)
-        cursor.execute("select substring(article_date, 1, 7), count(*) from article_page where ispage = 0 and draft = 0 group by substring(article_date, 1, 7) order by unix_timestamp(article_date)")
-        number = cursor.fetchall()
-        print(number)
+        cursor.execute("select substring(article_date, 1, 10), head, html from article_page where ispage = 0 and draft = 0 "
+                       "order by unix_timestamp(article_date)")
+        result = cursor.fetchall() #选出排序后的文章年与日，标题，html文件名
+        cursor.execute("select substring(article_date, 1, 7), count(*) from article_page where ispage = 0 and draft = 0"
+                       " group by substring(article_date, 1, 7) order by unix_timestamp(article_date)")
+        number = cursor.fetchall() #选出排序后的文章年月以及各分组的长度
         for i in number:
             RE = "([0-9]+?)-([0-9]+)"
             RE_list = re.findall(RE, i[0])
@@ -68,20 +70,22 @@ class archives_view(views.View):
             l["time"] = date1[j]
             max = number[j][1]
             for v1 in range(max):
-                temp.append(dict({'date':result[v][0], 'title':result[v][1], 'href':result[v][2]}))
+                temp.append(dict({'date':result[v][0], 'title':result[v][1], 'href':"post/" + result[v][2]}))
                 v += 1
             l["articles"] = temp
             posts.append(l)
         fuck = index_data(title, pages, github, posts, year)
+        cursor.close()
+        db.close()
         return render_template('archives.html', data = fuck)
 
 
 class aorp_view(views.View):
-    def md2html(self):
+    def md2html(self, name):
         code_head = '\n<div class="Code">'
         code_tail = '</div>\n'
         have_head = False
-        input_file = open('testmd.md', 'r', encoding='utf-8')
+        input_file = open(name, 'r', encoding='utf-8')
         line = input_file.readline()
         text = ''
         while line:
@@ -98,14 +102,61 @@ class aorp_view(views.View):
             line = input_file.readline()
         return (markdown.markdown(text))
     def dispatch_request(self, aname = '', pname = ''):
+        db = pymysql.connect(host="localhost", user="root", password="zq", port=3306, database="article_management")
+        cursor = db.cursor()
+        pages = list()
+        cursor.execute("select html, head from article_page where ispage = 1 and draft = 0")
+        for i in cursor.fetchall():
+            pages.append(dict({'name': i[1], 'href': "../page/" + i[0]}))
+        year = time.strftime('%Y', time.localtime(time.time()))
+
+        cursor.execute("select sitename, githubloc from setting where username = '1004'")
+        git_title = cursor.fetchall()[0]
+        title = git_title[0]
+        github = git_title[1]
         if aname:
-            post = self.md2html()
-            fuck = aorp_data('a',[{'name':'b1','href':'./aaa'},{'name':'b2','href':'./aaa'}],'c','d','e','f','g','h','i','j','k',post)
-            return render_template('post.html' , data = fuck)
+            sql = "select markdown, head, substring(article_date, 1, 10), unix_timestamp(article_date), author from article_page " \
+                  "where ispage = 0 and username = '1004' and html = '" + aname + "'"
+            cursor.execute(sql)
+            atitle_post_date_author = cursor.fetchone()
+            sql0 = "select html, head from article_page where ispage = 0 and username = '1004' " \
+                   "and unix_timestamp(article_date) > " + str(atitle_post_date_author[3]) + " order by unix_timestamp(article_date) limit 1"
+            sql1 = "select html, head from article_page where ispage = 0 and username = '1004' " \
+                   "and unix_timestamp(article_date) < " + str(atitle_post_date_author[3]) + " order by unix_timestamp(article_date) limit 1"
         elif pname:
-            post = self.md2html()
-            fuck = aorp_data('a',[{'name':'b1','href':'./aaa'},{'name':'b2','href':'./aaa'}],'c','d','e','f','g','h','i','j','k',post)
-            return render_template('post.html' , data = fuck)
+            sql = "select markdown, head, substring(article_date, 1, 10), unix_timestamp(article_date), author from article_page " \
+                  "where ispage = 1 and username = '1004' and html = '" + pname + "'"
+            cursor.execute(sql)
+            atitle_post_date_author = cursor.fetchone()
+            sql0 = "select html, head from article_page where ispage = 1 and username = '1004' " \
+                   "and unix_timestamp(article_date) > " + str(atitle_post_date_author[3]) + " order by unix_timestamp(article_date) limit 1"
+            sql1 = "select html, head from article_page where ispage = 1 and username = '1004' " \
+                   "and unix_timestamp(article_date) < " + str(atitle_post_date_author[3]) + " order by unix_timestamp(article_date) limit 1"
+        if cursor.execute(sql0) > 0:
+            html_head = cursor.fetchone()
+            next_html = html_head[0]
+            next_head = html_head[1]
+        else:
+            next_html = "../"
+            next_head = "没有下一个(回首页)"
+        print(next_head)
+        if cursor.execute(sql1) > 0:
+            html_head = cursor.fetchone()
+            last_html = html_head[0]
+            last_head = html_head[1]
+        else:
+            last_html = "../"
+            last_head = "没有上一个(回首页)"
+        post = self.md2html(atitle_post_date_author[0])
+        atitle = atitle_post_date_author[1]
+        RE = "([0-9]+?)-([0-9]+?)-([0-9]+)"
+        RE_list = re.findall(RE, atitle_post_date_author[2])
+        author_date = "本文由作者 " + atitle_post_date_author[4] + " 发表于 " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(atitle_post_date_author[3]))
+        date = RE_list[0][1] + '月' + RE_list[0][2] + ", " + RE_list[0][0]
+        fuck = aorp_data(title, pages, github, atitle, date, author_date, last_head, last_html, next_head, next_html, year, post)
+        cursor.close()
+        db.close()
+        return render_template('post.html', data = fuck)
 
 app.add_url_rule('/', view_func=index_view.as_view('index'))
 app.add_url_rule('/archives', view_func=archives_view.as_view('archives'))
