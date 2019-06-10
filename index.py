@@ -1,4 +1,5 @@
 from flask import render_template, Flask, views
+from DBUtils.PooledDB import PooledDB
 import markdown
 import cgi
 from config import Config
@@ -10,10 +11,47 @@ import re
 app = Flask(__name__)
 app.config.from_object(Config)
 
+POOL = PooledDB(
+    creator = pymysql,
+    host = "127.0.0.1",
+    port = 3306,
+    user = "root",
+    password = "zq",
+    database = "article_management",
+    charset="utf8"
+)
 
 class index_view(views.View):
+    def md2html(self, name):
+        code_head = '\n<div class="Code">'
+        code_tail = '</div>\n'
+        have_head = False
+        input_file = open(name, 'r', encoding='utf-8')
+        input_fullfile = open(name, 'r', encoding='utf-8')
+        full = input_fullfile.read()
+        line = input_file.readline()
+        text = '...'
+        if '<!--more-->' in full:
+            text = ''
+            while line:
+                if '<!--more-->' in line:
+                    break
+                if '```' in line:
+                    if have_head == False:
+                        line = code_head + '\n<code>'
+                        have_head = True
+                    else:
+                        line = '</code>\n' + code_tail
+                        have_head = False
+                elif have_head:
+                    line = cgi.escape(line)
+                text += line
+                line = input_file.readline()
+        input_fullfile.close()
+        input_file.close()
+        return (markdown.markdown(text))
     def dispatch_request(self):
-        db = pymysql.connect(host="localhost", user="root", password="zq", port=3306, database="article_management")
+        db = POOL.connection()
         cursor = db.cursor()
         pages = list()
         posts = list()
@@ -31,7 +69,8 @@ class index_view(views.View):
         print(post_infor)
         for j in post_infor:
             post_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(j[2]))
-            posts.append(dict({'title':j[0], 'href':'post/'+j[1], 'ad':j[3]+" 发布于 "+post_time, 'more':j[4]}))
+            text = self.md2html(j[4])
+            posts.append(dict({'title':j[0], 'href':'post/'+j[1], 'ad':j[3]+" 发布于 "+post_time, 'more':text}))
         fuck = index_data(title, pages, github, posts, year)
         cursor.close()
         db.close()
@@ -39,7 +78,7 @@ class index_view(views.View):
 
 class archives_view(views.View):
     def dispatch_request(self):
-        db = pymysql.connect(host="localhost", user="root", password="zq", port=3306, database="article_management")
+        db = POOL.connection()
         cursor = db.cursor()
         posts = list()
         date1 = list()
@@ -100,9 +139,10 @@ class aorp_view(views.View):
                 line = cgi.escape(line)
             text += line
             line = input_file.readline()
+        input_file.close()
         return (markdown.markdown(text))
     def dispatch_request(self, aname = '', pname = ''):
-        db = pymysql.connect(host="localhost", user="root", password="zq", port=3306, database="article_management")
+        db = POOL.connection()
         cursor = db.cursor()
         pages = list()
         cursor.execute("select html, head from article_page where ispage = 1 and draft = 0")
