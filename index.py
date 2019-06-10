@@ -1,231 +1,109 @@
 from flask import render_template, Flask, views
 import markdown
 import cgi
+from config import Config
+import pymysql
+import time
+from db_class import aorp_data, archives_data, index_data
+import re
 
 app = Flask(__name__)
-
-# pages
-# [
-#     {
-#         'name':'xxx',
-#         'href':'aaa'
-#     },
-# ]
-
-# posts
-# [
-#     {
-#         'title':'xxx',
-#         'href':'xxx',
-#         'ad':'xxx',
-#         'more':'xxx'
-#     },
-# ]
-
-# mp
-# [
-#     {
-#         'time':'xxx',
-#         'articles': [
-#             {
-#                 'title':'xxx',
-#                 'href':'xxx',
-#                 'date':'xxx'
-#             },
-#         ]
-#     },
-# ]
-
-class index_data():
-    def __init__(self, s_title, pages, github, posts, year):
-        self.__sitetitle = s_title #str
-        self.__pages = pages # list
-        self.__github = github #str
-        self.__posts = posts #list
-        self.__cpyear = year #str
-    def get_attr(self, id):
-        if id == 0:
-            return self.__sitetitle
-        elif id == 1:
-            return self.__pages
-        elif id == 2:
-            return self.__github
-        elif id == 3:
-            return self.__posts
-        elif id == 4:
-            return self.__cpyear
-
-class archives_data():
-    def __init__(self, s_title, pages, github, mp, year):
-        self.__sitetitle = s_title #str
-        self.__pages = pages # list
-        self.__github = github #str
-        self.__mp = mp #list
-        self.__cpyear = year #str
-    def get_attr(self, id):
-        if id == 0:
-            return self.__sitetitle
-        elif id == 1:
-            return self.__pages
-        elif id == 2:
-            return self.__github
-        elif id == 3:
-            return self.__mp
-        elif id == 4:
-            return self.__cpyear
-
-class aorp_data():
-    def __init__(self, s_title, pages, github, title, date, info, ptitle, phref, ntitle, nhref, year, content):
-        self.__sitetitle = s_title #str
-        self.__pages = pages # list
-        self.__github = github #str
-        self.__title = title # str
-        self.__date = date # str
-        self.__info = info # str
-        self.__ptitle = ptitle # str
-        self.__phref = phref # str
-        self.__ntitle = ntitle # str
-        self.__nhref = nhref # str
-        self.__cpyear = year #str
-        self.__content = content #str
-    def get_attr(self, id):
-        if id == 0:
-            return self.__sitetitle
-        elif id == 1:
-            return self.__pages
-        elif id == 2:
-            return self.__github
-        elif id == 3:
-            return self.__title
-        elif id == 4:
-            return self.__date
-        elif id == 5:
-            return self.__info
-        elif id == 6:
-            return self.__ptitle
-        elif id == 7:
-            return self.__phref
-        elif id == 8:
-            return self.__ntitle
-        elif id == 9:
-            return self.__nhref
-        elif id == 10:
-            return self.__cpyear
-        elif id == 11:
-            return self.__content
+app.config.from_object(Config)
 
 
 class index_view(views.View):
     def dispatch_request(self):
-        a = [
-            {
-                'title':'xxx',
-                'href':'xxx',
-                'ad':'xxx',
-                'more':'xxx'
-            },
-            {
-                'title':'xxx1',
-                'href':'xxx1',
-                'ad':'xxx',
-                'more':'xxx'
-            },
-            {
-                'title':'xxx2',
-                'href':'xxx2',
-                'ad':'xxx2',
-                'more':'xxx'
-            }
-        ]
-        fuck = index_data('aa',[{'name':'fuck1','href':'./aaa'},{'name':'fuck2','href':'./aaa'},{'name':'fuck3','href':'./aaa'}],'a',a,'a')
+        db = pymysql.connect(host="localhost", user="root", password="zq", port=3306, database="article_management")
+        cursor = db.cursor()
+        pages = list()
+        posts = list()
+        year = time.strftime('%Y',time.localtime(time.time()))
+        cursor.execute("select sitename, githubloc from setting where username = '1004'")
+        git_title = cursor.fetchall()[0]
+        title = git_title[0]
+        github = git_title[1]
+        cursor.execute("select html, head from article_page where ispage = 1 and draft = 0")
+        for i in cursor.fetchall():
+            pages.append(dict({'name':i[1], 'href':"page/"+i[0]}))
+        cursor.execute("select head, html, unix_timestamp(article_date), author, markdown from article_page where ispage = 0 and draft = 0")
+        post_infor = cursor.fetchall()
+        print(post_infor)
+        for j in post_infor:
+            post_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(j[2]))
+            print(post_time)
+            posts.append(dict({'title':j[0], 'href':'post/'+j[1], 'ad':j[3]+" 发布于 "+post_time, 'more':j[4]}))
+        fuck = index_data(title, pages, github, posts, year)
         return render_template('index.html', data = fuck)
 
 class archives_view(views.View):
     def dispatch_request(self):
-        a = [
-            {
-                'time':'1xxx',
-                'articles': [
-                    {
-                        'title':'axxx',
-                        'href':'xxx',
-                        'date':'xxx'
-                    },
-                    {
-                        'title':'bxxx',
-                        'href':'xxx',
-                        'date':'xxx'
-                    },
-                    {
-                        'title':'cxxx',
-                        'href':'xxx',
-                        'date':'xxx'
-                    }
-                ]
-            },
-            {
-                'time':'2xxx',
-                'articles': [
-                    {
-                        'title':'xxx',
-                        'href':'xxx',
-                        'date':'xxx'
-                    }
-                ]
-            },
-            {
-                'time':'3xxx',
-                'articles': [
-                    {
-                        'title':'xxx',
-                        'href':'xxx',
-                        'date':'xxx'
-                    },
-                    {
-                        'title':'xxx',
-                        'href':'xxx',
-                        'date':'xxx'
-                    }
-                ]
-            },
-            {
-                'time':'4xxx',
-                'articles': [
-                    {
-                        'title':'xxx',
-                        'href':'xxx',
-                        'date':'xxx'
-                    },
-                    {
-                        'title':'xxx',
-                        'href':'xxx',
-                        'date':'xxx'
-                    },
-                    {
-                        'title':'xxx',
-                        'href':'xxx',
-                        'date':'xxx'
-                    },
-                    {
-                        'title':'xxx',
-                        'href':'xxx',
-                        'date':'xxx'
-                    }
-                ]
-            },
-        ]
-        fuck = index_data('aa',[{'name':'fuck1','href':'./aaa'},{'name':'fuck2','href':'./aaa'},{'name':'fuck3','href':'./aaa'}],'a',a,'a')
+        db = pymysql.connect(host="localhost", user="root", password="zq", port=3306, database="article_management")
+        cursor = db.cursor()
+        posts = list()
+        date1 = list()
+        pages = list()
+        year = time.strftime('%Y',time.localtime(time.time()))
+        cursor.execute("select sitename, githubloc from setting where username = '1004'")
+        git_title = cursor.fetchall()[0]
+        title = git_title[0]
+        github = git_title[1]
+        cursor.execute("select html, head from article_page where ispage = 1 and draft = 0")
+        for i in cursor.fetchall():
+            pages.append(dict({'name':i[1], 'href':"page/"+i[0]}))
+        cursor.execute("select substring(article_date, 1, 10), head, html from article_page where ispage = 0 and draft = 0 order by unix_timestamp(article_date)")
+        result = cursor.fetchall()
+        print(result)
+        cursor.execute("select substring(article_date, 1, 7), count(*) from article_page where ispage = 0 and draft = 0 group by substring(article_date, 1, 7) order by unix_timestamp(article_date)")
+        number = cursor.fetchall()
+        print(number)
+        for i in number:
+            RE = "([0-9]+?)-([0-9]+)"
+            RE_list = re.findall(RE, i[0])
+            date1.append(RE_list[0][0] + "年" + RE_list[0][1] + "月")
+        print(date1)
+        v = 0
+        for j in range(len(date1)):
+            l = dict()
+            temp = list()
+            l["time"] = date1[j]
+            max = number[j][1]
+            for v1 in range(max):
+                temp.append(dict({'date':result[v][0], 'title':result[v][1], 'href':result[v][2]}))
+                v += 1
+            l["articles"] = temp
+            posts.append(l)
+        fuck = index_data(title, pages, github, posts, year)
         return render_template('archives.html', data = fuck)
 
 
 class aorp_view(views.View):
+    def md2html(self):
+        code_head = '\n<div class="Code">'
+        code_tail = '</div>\n'
+        have_head = False
+        input_file = open('testmd.md', 'r', encoding='utf-8')
+        line = input_file.readline()
+        text = ''
+        while line:
+            if '```' in line:
+                if have_head == False:
+                    line = code_head + '\n<code>'
+                    have_head = True
+                else:
+                    line = '</code>\n' + code_tail
+                    have_head = False
+            elif have_head:
+                line = cgi.escape(line)
+            text += line
+            line = input_file.readline()
+        return (markdown.markdown(text))
     def dispatch_request(self, aname = '', pname = ''):
         if aname:
-            post = md2html()
+            post = self.md2html()
             fuck = aorp_data('a',[{'name':'b1','href':'./aaa'},{'name':'b2','href':'./aaa'}],'c','d','e','f','g','h','i','j','k',post)
             return render_template('post.html' , data = fuck)
         elif pname:
-            post = md2html()
+            post = self.md2html()
             fuck = aorp_data('a',[{'name':'b1','href':'./aaa'},{'name':'b2','href':'./aaa'}],'c','d','e','f','g','h','i','j','k',post)
             return render_template('post.html' , data = fuck)
 
@@ -234,27 +112,6 @@ app.add_url_rule('/archives', view_func=archives_view.as_view('archives'))
 app.add_url_rule('/post/<aname>', view_func=aorp_view.as_view('articles'))
 app.add_url_rule('/page/<pname>', view_func=aorp_view.as_view('pages'))
 
-
-def md2html():
-    code_head = '\n<div class="Code">'
-    code_tail = '</div>\n'
-    have_head = False
-    input_file = open('testmd.md', 'r', encoding='utf-8')
-    line = input_file.readline()
-    text = ''
-    while line:
-        if '```' in line:
-            if have_head == False:
-                line = code_head + '\n<code>'
-                have_head = True
-            else:
-                line = '</code>\n' + code_tail
-                have_head = False
-        elif have_head:
-            line = cgi.escape(line)
-        text += line
-        line = input_file.readline()
-    return (markdown.markdown(text))
 
 # @app.route('/post/<article_path>')
 # def article(article_path):
