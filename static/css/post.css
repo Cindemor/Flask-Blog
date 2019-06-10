@@ -323,7 +323,7 @@ div code {
 .Code {
     padding: 10px;
     margin: 10px 0;
-    background-color: #edf7fb;
+    background-color: aliceblue;
     border-radius: 5px;
     overflow-x: auto;
     box-shadow: inset 1px 1px 4px -2px #777;
@@ -341,9 +341,18 @@ p a {
     text-decoration: none;
     color: cornflowerblue;
 }
+blockquote {
+    margin: 16px 0px;
+    padding: 15px 20px;
+    border-left: 5px solid #2196F3;
+    background-color: aliceblue;
+}
 #postinfo {
     text-align: center;
     color: #aaa;
     font-size: 12px;
     padding: 0 30px;
+}
+blockquote p {
+    margin: 0;
 }

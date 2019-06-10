@@ -36,7 +36,7 @@ class index_view(views.View):
             while line:
                 if '<!--more-->' in line:
                     break
-                if '```' in line:
+                if '```' == line[:3]:
                     if have_head == False:
                         line = code_head + '\n<code>'
                         have_head = True
@@ -128,7 +128,7 @@ class aorp_view(views.View):
         line = input_file.readline()
         text = ''
         while line:
-            if '```' in line:
+            if '```' == line[:3]:
                 if have_head == False:
                     line = code_head + '\n<code>'
                     have_head = True
