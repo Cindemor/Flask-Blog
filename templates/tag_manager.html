@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>spidereyes博客后台系统</title>
+        <meta charset="UTF-8">
+        <link href="css\main.css"" rel="stylesheet">
+        <link href="css\left.css" rel="stylesheet">
+        <link href="css\content.css" rel="stylesheet">
+        <link href="css\manager.css" rel="stylesheet">
+    </head>
+    <body>
+        <div id="all">
+            <div id="all_left">
+                <div id="left_logo">
+                    <h1 id="left_head">
+                        <a href="">
+                            spidereyes
+                        </a>
+                    </h1>
+                </div>
+                <ul id="left_ul">
+                    <li>
+                        <a href="introduction.html#" id="choice_0">概述</a>
+                    </li>
+                    <li>
+                        <a href="#" id="choice_1" onclick="click_trans_change('article')">文章管理</a>
+                    </li>
+                    <ul id="change_1" style="height:auto; display: none; padding-left: 0px;"">
+                            <li>
+                                <a href="article_manager.html" id="hidden_a">文章列表</a>
+                            </li>
+                            <li>
+                                <a href="article_create.html" id="hidden_a">添加文章</a>
+                            </li>
+                    </ul>
+                    <li>
+                        <a href="#" id="choice_2" onclick="click_trans_change('page')">页面管理</a>
+                    </li>
+                    <ul id="change_2" style="height:auto; display: none; padding-left: 0px;"">
+                            <li>
+                                <a href="page_manager.html" id="hidden_a">页面列表</a>
+                            </li>
+                            <li>
+                                <a href="page_create.html" id="hidden_a">添加页面</a>
+                            </li>
+                    </ul>
+                    <li class="active">
+                        <a href="#" id="choice_3" onclick="click_trans_change('tag')" class="active">标签管理</a>
+                    </li>
+                    <ul id="change_3" style="height:auto; padding-left: 0px;">
+                            <li>
+                                <a href="tag_manager.html" class="active" id="hidden_a">标签列表</a>
+                            </li>
+                            <li>
+                                <a href="tag_create.html" id="hidden_a">添加标签</a>
+                            </li>
+                    </ul>
+                    <li>
+                        <a href="settings.html" id="choice_4">系统设置</a>
+                    </li>
+                </ul>
+            </div>
+            <div id="all_content">
+                <div style="background-color: #323232; height: 30px; border: 3px solid #393939">
+                    <a href= "index.html#" id="content_menu" style="margin-left:30px;">首页</a>
+                    <font id="content_menu_font">/ 标签管理 /</font>
+                    <a href= "" id="content_menu">标签列表</a>
+                </div>
+                <hr>
+                <div id="tag_list_capacity">
+                    <table id="tag_list">
+                        <thead id="tag_list_head">
+                            <tr>
+                                <th>
+                                    <div>名称</div>
+                                </th>
+                                <th>
+                                    <div>缩略名</div>
+                                </th>
+                                <th>
+                                    <div>文章数</div>
+                                </th>
+                                <th>
+                                    <div>操作</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tag_list_body">
+                            <tr>
+                                <td class="search_choose">
+                                    <div>样例1</div>
+                                </td>
+                                <td>
+                                    <div>例1</div>
+                                </td>
+                                <td>
+                                    <div>0</div>
+                                </td>
+                                <td>
+                                    <input type="submit" class="edit" value="编辑" />
+                                    <input type="submit" class="delete" value="删除" />
+                                </td>
+                            </tr>
+                            <tr>
+                                    <td class="search_choose">
+                                        <div>样例2</div>
+                                    </td>
+                                    <td>
+                                        <div>例2</div>
+                                    </td>
+                                    <td>
+                                        <div>10</div>
+                                    </td>
+                                    <td>
+                                        <input type="submit" class="edit" value="编辑" />
+                                        <input type="submit" class="delete" value="删除" />
+                                    </td>
+                                </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    <script type="text/javascript" src="js\click_trans.js"></script>
+    <script type="text/javascript" src="js\to_page.js"></script>
+</body>
+</html>

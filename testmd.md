@@ -1,0 +1,202 @@
+主要分为三种：txt文件、xlsx文件、数据库
+
+有待更新
+
+<!--more-->
+----------
+
+
+### TXT文件
+
+----------
+----------
+
+python提供的打开文件的函数为open()：
+
+``` python
+file = open(fileName=path, mode='打开模式', encoding='编码方式', errors='ignore或者None')
+```
+常用参数有：
+
+**fileName**：文件路径及名称
+
+**mode**：打开文件的模式（稍后介绍）
+
+**errors**：因存在使用的编码中不支持的字符而发生编码错误时采取的作为
+
+**encoding**：设定对文件操作编码格式
+
+其中mode参数值一般来说有以下几个：
+
+**'w'**：只写文本模式，文件不存在时将自动生成，存在则清空
+
+**'r'**：只读文本模式，文件不存在将报错IOError
+
+**‘a’**：追加模式，文件不存在将自动生成
+
+**'r+'**：可读可写，文件不存在将报错IOError
+
+**‘w+’**：可写可读，文件不存在将自动生成，存在则清空
+
+**'a+'**：追加可读模式，文件不存在将报错IOError
+
+**'b'**：操作二进制文件时使用，必须接在w、r、a后面，+其次。
+
+文件在操作完成必须将该句柄关闭，否则可能出现数据从内存到硬盘的传输过程中断，也就是文件数据不全的后果：
+
+``` python
+file.close()
+```
+
+但在文件操作中经常会出现IOError而导致.close()无法调用，采用try：
+
+``` python
+try:
+    file = open(path, mode='w', encoding="utf-8") 
+    file.write("lonespiders")
+finally:
+    if file:
+        file.close()
+```
+如果使用多个文件句柄时显然很繁琐，因此python提供了with语句用来自动调用close函数：
+
+``` python
+with open(path, mode, encoding, errors) as file:
+```
+这样在使用多个文件句柄就显得很简洁：
+
+``` python
+with open(path, mode, encoding, errors) as file:
+    with open(path, mode, encoding, errors) as file1:
+        ...
+            ...
+```
+---
+
+读取文件提供了三个函数：
+
+``` python
+string = file.read() #把整个文件读至末尾返回为一个字符串
+string_list = file.readlines() #文件按行读并存进一个列表，但是每个元素包含末尾换行
+string = file.readline() #每次执行只读取文件一行返回为一个字符串，多次执行会继续向下读取，末尾仍然会有换行
+```
+由于字符串没有切片（老是忘记），readlines()和readline()造成的换行问题可以用strip或replace解决，但需注意这两者都是深复制，也就是指向两片变量空间，不会把原字符串更改。
+
+写入文件一般就使用.write()就行，没啥可解释。
+
+---
+
+### XLSX文件
+
+----------
+----------
+
+写入xlsx我使用的模板是pandas: panel datas(面板数据)
+
+安装方法：
+
+pip install 胖达
+
+pip install xlrd #读取xlsx用
+
+pip install xlwt #写入xlsx用
+
+附上前些天写的代码：
+
+``` python
+import pandas
+def get_data_dict():
+  file_path = input("请输入excel的位置及文件名加后缀:")
+  sheet_name = input("请输入表名:")
+  a = pandas.read_excel(file_path, sheet_name = sheet_name) #按文件路径和表名读取
+  data_dic = dict() #把表格存进字典，表头——列表的形式方便使用
+  print(a.columns.size)
+  for i in a.columns:
+    value = list()
+    for j in a[i]:
+      value.append(j)
+    data_dic[i] = value
+  return data_dic
+
+if __name__ == '__main__':
+  print(get_data_dict())
+```
+整段代码就只是把表名和路径输入后把整张表存进了字典。read_excel返回一个DataFrame对象（DataFrame是胖达封装的一种面向列column-oriented)的二维表结构）因为学习尚浅使用不是很顺畅才把它里面东西拿出来做成字典的。
+
+胖达内容非常多，这只举几个例子：
+
+获取所有列名（columns）：
+
+``` python
+>>> a.columns.tolist()
+['列名1', '列名2‘, '列名3’]
+```
+
+获取所有行名（index）：
+
+``` python
+>>> a._stat_axis.tolist()
+['行名1', '行名2', '行名3']
+```
+
+获取内容：
+``` python
+a.loc[:, 'X'].tolist #获取列名为X的所有内容
+a.loc['a', :].tolist #获取行名为a的所有内容
+a['X'].tolist #像一样字典使用时括号内参数为列名
+a.head(int参数) #获取前参数行的内容
+a.tail(int参数) #获取后参数行的内容
+a.shape() #获取行列数
+```
+#### 写入暂时未接触，待以后深入学习再更新。
+
+----------
+
+### MYSQL
+----------
+使用次数还不多，也有待更新
+
+想到写入数据库原因一是
+这学期学了sql，学会了如何查找、添加、更改、删库（雾）。
+其次就是成绩保存在文件内不方便且格式也很混乱。
+
+使用模板为：pymysql。注意这个模板只有python3.X可以使用，python2且另行搜索mysqldb。
+
+安装方式：
+```
+>>> pip install pymysql
+```
+
+使用也比较简单：
+```
+db = pymysql.connect(host="localhost", user="用户名", password="密码", port=3306, db="数据库名称") #连接本地数据库
+db.close() #关闭连接并释放相应资源
+db.commit() #提交一次事务也象征着一个事务的结尾。这个很重要，否则数据库会将之前的指令全部当做一个事务来提交，回滚也会直接回滚这一整个事务，此外涉及写入操作只有真正提交了才会对数据库造成影响。
+cursor = db.cursor() #获取光标对象用于访问数据库
+cursor.execute(sql) #执行sql语句。
+cursor.rollback() #出错时可以用它回滚
+cursor.close() #关闭光标并释放相应资源
+cursor.fetchall() #获取结果集中rownum以后的所有行
+cursor.fetchone() #获取结果集中rownum的下一行
+cursor.fetchmany(int) #获取结果集中rownum的下int行
+#rownum为当前光标所处结果集的行数 
+```
+
+```
+#针对fetch举个栗子：
+#现一table 里数据如下
+#    +------+-------+
+#    | le   | en    |
+#    +------+-------+
+#    | f    | la    |
+#    | ffd  | lfdsa |
+#    +------+-------+
+cursor.execute('select * from haha')
+print(cursor.fetchall()) #执行fetchall
+print(curosr.fetchone()) #在此基础继续执行fetchone
+#结果如下:
+#(('f', 'la'), ('ffd', 'lfdsa'))
+#None
+#显然fetchall执行之后rownum已到达最后一行所以执行fetchone输出下一行为None
+#另外如果一条语句没有提交但是执行了，fetch后缓冲区仍然会有该语句执行后的结果，但是数据库不会有任何影响
+```
