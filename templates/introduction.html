@@ -12,7 +12,7 @@
             <div id="all_left">
                 <div id="left_logo">
                     <h1 id="left_head">
-                        <a href="index.html#">
+                        <a href="/">
                             {{ form.get_sitename() }}
                         </a>
                     </h1>
@@ -82,12 +82,12 @@
                 <!--需要后端接口-->
                 <div id="intro_content1">
                     {% for article in form.get_articles() %}
-                        <p>{{ article }}</p>
+                        <p><a id="intro_content_a" href="{{ article['href'] }}">{{ article['title'] }}</a></p>
                     {% endfor %}
                 </div>
                 <font id="intro_content_header2">关于我们</font>
                 <div id="intro_content2">
-                    <p>github：<a id="intro_content_a" href="https://github.com/Cindemor/Flask-Blog"></a></p>
+                    <p>github：<a id="intro_content_a" href="https://github.com/Cindemor/Flask-Blog">https://github.com/Cindemor/Flask-Blog</a></p>
                 </div>
             </div>
         </div>

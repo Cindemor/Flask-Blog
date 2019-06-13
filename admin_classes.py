@@ -35,10 +35,3 @@ class IntroForm(FlaskForm):
         return self.__pagenum
     def get_articles(self):
         return self.__articles
-
-class CookieCheck():
-    def __init__(self, string1, string2):
-        self.__string1 = string1
-        self.__string2 = string2
-    def check(self, request, session):
-        return self.__string1 in request.cookies and self.__string2 in session

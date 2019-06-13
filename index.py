@@ -7,7 +7,7 @@ import pymysql
 import time
 from index_classes import aorp_data, archives_data, index_data
 import re
-from admin_classes import LoginForm, IntroForm, CookieCheck
+from admin_classes import LoginForm, IntroForm
 from datetime import timedelta
 
 
@@ -59,15 +59,15 @@ class index_view(views.View):
         pages = list()
         posts = list()
         year = time.strftime('%Y',time.localtime(time.time()))
-        cursor.execute("select sitename, githubloc from setting where username = '1004'")
+        cursor.execute("select sitename, githubloc from setting")
         git_title = cursor.fetchall()[0]
         title = git_title[0]
         github = git_title[1]
-        cursor.execute("select html, head from article_page where ispage = 1 and draft = 0 order by unix_timestamp(article_date) desc")
+        cursor.execute("select html, head from article_page where ispage = 1 and draft = 0 and open_degree = 1 order by unix_timestamp(article_date) desc")
         for i in cursor.fetchall():
             pages.append(dict({'name':i[1], 'href':"page/"+i[0]}))
         cursor.execute("select head, html, unix_timestamp(article_date), author, markdown from article_page"
-                       " where ispage = 0 and draft = 0 order by unix_timestamp(article_date) desc")
+                       " where ispage = 0 and draft = 0 and open_degree = 1 order by unix_timestamp(article_date) desc")
         post_infor = cursor.fetchall()
         print(post_infor)
         for j in post_infor:
@@ -87,18 +87,18 @@ class archives_view(views.View):
         date1 = list()
         pages = list()
         year = time.strftime('%Y',time.localtime(time.time()))
-        cursor.execute("select sitename, githubloc from setting where username = '1004'")
+        cursor.execute("select sitename, githubloc from setting")
         git_title = cursor.fetchall()[0]
         title = git_title[0]
         github = git_title[1]
-        cursor.execute("select html, head from article_page where ispage = 1 and draft = 0")
+        cursor.execute("select html, head from article_page where ispage = 1 and draft = 0 and open_degree = 1")
         for i in cursor.fetchall():
             pages.append(dict({'name':i[1], 'href':"page/"+i[0]}))
         cursor.execute("select substring(article_date, 1, 10), head, html from article_page where ispage = 0 and draft = 0 "
-                       "order by unix_timestamp(article_date)")
+                       " and open_degree = 1 order by unix_timestamp(article_date)")
         result = cursor.fetchall() #选出排序后的文章年与日，标题，html文件名
         cursor.execute("select substring(article_date, 1, 7), count(*) from article_page where ispage = 0 and draft = 0"
-                       " group by substring(article_date, 1, 7) order by unix_timestamp(article_date)")
+                       " and open_degree = 1 group by substring(article_date, 1, 7) order by unix_timestamp(article_date)")
         number = cursor.fetchall() #选出排序后的文章年月以及各分组的长度
         for i in number:
             RE = "([0-9]+?)-([0-9]+)"
@@ -148,32 +148,32 @@ class aorp_view(views.View):
         db = POOL.connection()
         cursor = db.cursor()
         pages = list()
-        cursor.execute("select html, head from article_page where ispage = 1 and draft = 0")
+        cursor.execute("select html, head from article_page where ispage = 1 and draft = 0 and open_degree = 1")
         for i in cursor.fetchall():
             pages.append(dict({'name': i[1], 'href': "../page/" + i[0]}))
         year = time.strftime('%Y', time.localtime(time.time()))
 
-        cursor.execute("select sitename, githubloc from setting where username = '1004'")
+        cursor.execute("select sitename, githubloc from setting")
         git_title = cursor.fetchall()[0]
         title = git_title[0]
         github = git_title[1]
         if aname:
             sql = "select markdown, head, substring(article_date, 1, 10), unix_timestamp(article_date), author from article_page " \
-                  "where ispage = 0 and username = '1004' and html = '" + aname + "'"
+                  "where ispage = 0 and draft = 0 and open_degree = 1 and html = '" + aname + "'"
             cursor.execute(sql)
             atitle_post_date_author = cursor.fetchone()
-            sql0 = "select html, head from article_page where ispage = 0 and username = '1004' " \
+            sql0 = "select html, head from article_page where ispage = 0 and draft = 0 and open_degree = 1 " \
                    "and unix_timestamp(article_date) > " + str(atitle_post_date_author[3]) + " order by unix_timestamp(article_date) limit 1"
-            sql1 = "select html, head from article_page where ispage = 0 and username = '1004' " \
+            sql1 = "select html, head from article_page where ispage = 0 and draft = 0 and open_degree = 1 " \
                    "and unix_timestamp(article_date) < " + str(atitle_post_date_author[3]) + " order by unix_timestamp(article_date) limit 1"
         elif pname:
             sql = "select markdown, head, substring(article_date, 1, 10), unix_timestamp(article_date), author from article_page " \
-                  "where ispage = 1 and username = '1004' and html = '" + pname + "'"
+                  "where ispage = 1 and html = '" + pname + "'"
             cursor.execute(sql)
             atitle_post_date_author = cursor.fetchone()
-            sql0 = "select html, head from article_page where ispage = 1 and username = '1004' " \
+            sql0 = "select html, head from article_page where ispage = 1 and draft = 0 and open_degree = 1 " \
                    "and unix_timestamp(article_date) > " + str(atitle_post_date_author[3]) + " order by unix_timestamp(article_date) limit 1"
-            sql1 = "select html, head from article_page where ispage = 1 and username = '1004' " \
+            sql1 = "select html, head from article_page where ispage = 1 and draft = 0 and open_degree = 1 " \
                    "and unix_timestamp(article_date) < " + str(atitle_post_date_author[3]) + " order by unix_timestamp(article_date) limit 1"
         if cursor.execute(sql0) > 0:
             html_head = cursor.fetchone()
@@ -204,51 +204,58 @@ class aorp_view(views.View):
 class login_view(views.View):
     def dispatch_request(self):
         form = LoginForm()
-        print(form.data)
         if request.method == "POST":
-            print(form.validate())
             if form.validate():
                 db = POOL.connection()
                 cursor = db.cursor()
                 cursor.execute("select username from admin_")
                 usernames = cursor.fetchall()
-                print(usernames)
                 if (form.username.data,) in usernames:
                     cursor.execute("select password_ from admin_ where username = '" + form.username.data + "'")
                     temp = cursor.fetchone()
                     response = make_response(redirect("/admin/intro"))
                     if temp == (form.password.data,) and form.check.data == True:
                         session["user"] = form.username.data
-                        print (session)
-                        response.set_cookie("promission", "1", path="/admin", expires=time.time()+604800)
+                        session.permanent = True
                         return response
                     elif temp == (form.password.data,):
-                        print ('yes')
                         session["user"] = form.username.data
-                        response.set_cookie("promission", "1", path="/admin")
                         return response
                     else:
                         form.username.data = ""
-                        return render_template("login.html", form=form, msg="密码错误！")
+                        return render_template("login.html", form=form, msg="账号或密码错误！")
                 else:
                     form.username.data = ""
-                    return render_template("login.html", form=form, msg="输入的账号不存在！")
+                    return render_template("login.html", form=form, msg="账号或密码错误！")
+                cursor.close()
+                db.close()
             else:
                 return render_template("login.html", form=form)
         else:
-            cookiecheck = CookieCheck("promission", "user")
-            print(session)
-            print(request.cookies)
-            if cookiecheck.check(request, session):
+            if session.get('user'):
                 return redirect("/admin/intro")
             else:
                 return render_template("login.html", form=form)
 
 class intro_view(views.View):
     def dispatch_request(self):
-        cookiecheck = CookieCheck("promission", "user")
-        if cookiecheck.check(request, session):
-            intro_form = IntroForm("aaa", "aaa", "aaa", ["aaaa","bbbb"])
+        if session.get('user'):
+            db = POOL.connection()
+            cursor = db.cursor()
+            cursor.execute("select sitename from setting")
+            sitename = cursor.fetchall()[0][0]
+            cursor.execute("select count(*) from article_page group by ispage order by ispage")
+            nums = cursor.fetchall()
+            post_num = nums[0][0]
+            page_num = nums[1][0]
+            cursor.execute("select html,head from article_page where ispage = 0 and draft = 0 and open_degree = 1 "
+            "order by unix_timestamp(article_date) desc limit 5")
+            articles = list()
+            for i in cursor.fetchall():
+                articles.append(dict({'title':i[1], 'href':"../../post/"+i[0]}))
+            cursor.close()
+            db.close()
+            intro_form = IntroForm(sitename, post_num, page_num, articles)
             return render_template("introduction.html", form=intro_form)
         else:
             return redirect("/admin")
