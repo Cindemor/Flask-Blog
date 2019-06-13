@@ -1,4 +1,4 @@
-from flask import render_template, Flask, views, request, redirect, make_response, current_app
+from flask import render_template, Flask, views, request, redirect, make_response, session
 from DBUtils.PooledDB import PooledDB
 import markdown
 import cgi
@@ -7,7 +7,8 @@ import pymysql
 import time
 from index_classes import aorp_data, archives_data, index_data
 import re
-from admin_classes import LoginForm, CookieManager
+from admin_classes import LoginForm, IntroForm, CookieCheck
+from datetime import timedelta
 
 
 app = Flask(__name__)
@@ -205,6 +206,7 @@ class login_view(views.View):
         form = LoginForm()
         print(form.data)
         if request.method == "POST":
+            print(form.validate())
             if form.validate():
                 db = POOL.connection()
                 cursor = db.cursor()
@@ -214,14 +216,17 @@ class login_view(views.View):
                 if (form.username.data,) in usernames:
                     cursor.execute("select password_ from admin_ where username = '" + form.username.data + "'")
                     temp = cursor.fetchone()
+                    response = make_response(redirect("/admin/intro"))
                     if temp == (form.password.data,) and form.check.data == True:
-                        response = make_response(redirect("/intro"))
-                        cookie = CookieManager(form.username.data)
-                        cookie.setcookie(response)
-                        print(cookie.get_cookie())
+                        session["user"] = form.username.data
+                        print (session)
+                        response.set_cookie("promission", "1", path="/admin", expires=time.time()+604800)
                         return response
                     elif temp == (form.password.data,):
-                        return redirect("/intro")
+                        print ('yes')
+                        session["user"] = form.username.data
+                        response.set_cookie("promission", "1", path="/admin")
+                        return response
                     else:
                         form.username.data = ""
                         return render_template("login.html", form=form, msg="密码错误！")
@@ -231,20 +236,28 @@ class login_view(views.View):
             else:
                 return render_template("login.html", form=form)
         else:
-            return render_template("login.html", form=form)
+            cookiecheck = CookieCheck("promission", "user")
+            print(session)
+            print(request.cookies)
+            if cookiecheck.check(request, session):
+                return redirect("/admin/intro")
+            else:
+                return render_template("login.html", form=form)
 
 class intro_view(views.View):
     def dispatch_request(self):
-        if request.cookies.get("user"):
-            return "Hello" + request.cookies.get("user")
+        cookiecheck = CookieCheck("promission", "user")
+        if cookiecheck.check(request, session):
+            intro_form = IntroForm("aaa", "aaa", "aaa", ["aaaa","bbbb"])
+            return render_template("introduction.html", form=intro_form)
         else:
-            return "you have no cookie"
+            return redirect("/admin")
 app.add_url_rule('/', view_func=index_view.as_view('index'), methods=["GET"])
 app.add_url_rule('/archives', view_func=archives_view.as_view('archives'), methods=["GET"])
 app.add_url_rule('/post/<aname>', view_func=aorp_view.as_view('articles'), methods=["GET"])
 app.add_url_rule('/page/<pname>', view_func=aorp_view.as_view('pages'), methods=["GET"])
 app.add_url_rule('/admin', view_func=login_view.as_view('login'), methods=["GET", "POST"])
-app.add_url_rule('/intro', view_func=intro_view.as_view('introduction'), methods=["GET"])
+app.add_url_rule('/admin/intro', view_func=intro_view.as_view('introduction'), methods=["GET"])
 
 
 

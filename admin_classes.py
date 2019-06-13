@@ -2,15 +2,6 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, FileField,SubmitField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, input_required, url, Length
 
-class CookieManager():
-    def __init__(self, string):
-        self.__cookie = string
-    def get_cookie(self):
-        return self.__cookie
-    def setcookie(self, response):
-        response.set_cookie("user", self.__cookie, path="/")
-    def check(self, request):
-        return request.cookie.get("user") == self.__cookie
 
 class SettingForm(FlaskForm):
     Sitename = StringField("sitename", validators=[DataRequired()])
@@ -29,3 +20,25 @@ class LoginForm(FlaskForm):
         Length(min=6, max=15, message="密码长度为6~15位字符")])
     check = BooleanField("remember-me-checkbox")
     submit=SubmitField("submit")
+
+class IntroForm(FlaskForm):
+    def __init__(self, sitename, articlenum, pagenum, articles):
+        self.__sitename = sitename
+        self.__articlenum = articlenum
+        self.__pagenum = pagenum
+        self.__articles = articles
+    def get_sitename(self):
+        return self.__sitename
+    def get_articlenum(self):
+        return self.__articlenum
+    def get_pagenum(self):
+        return self.__pagenum
+    def get_articles(self):
+        return self.__articles
+
+class CookieCheck():
+    def __init__(self, string1, string2):
+        self.__string1 = string1
+        self.__string2 = string2
+    def check(self, request, session):
+        return self.__string1 in request.cookies and self.__string2 in session

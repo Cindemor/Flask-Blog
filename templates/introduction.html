@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>        
-        <title>spidereyes博客后台系统</title>
+        <title>{{ sitename }}</title>
         <meta charset="UTF-8">
-        <link href="css\main.css" rel="stylesheet">
-        <link href="css\left.css" rel="stylesheet">
-        <link href="css\content.css" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/main.css' )}}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/content.css' )}}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/left.css' )}}" rel="stylesheet">
     </head>
     <body>
         <div id="all">
@@ -13,7 +13,7 @@
                 <div id="left_logo">
                     <h1 id="left_head">
                         <a href="index.html#">
-                            spidereyes
+                            {{ form.get_sitename() }}
                         </a>
                     </h1>
                 </div>
@@ -26,10 +26,10 @@
                     </li>
                     <ul id="change_1" style="height:auto; display: none; padding-left: 0px;">
                             <li>
-                                <a href="article_manager.html#" id="hidden_a">文章列表</a>
+                                <a href="../post/list" id="hidden_a">文章列表</a>
                             </li>
                             <li>
-                                <a href="article_create.html#" id="hidden_a">添加文章</a>
+                                <a href="../post/create" id="hidden_a">添加文章</a>
                             </li>
                     </ul>
                     <li>
@@ -37,62 +37,61 @@
                     </li>
                     <ul id="change_2" style="height:auto; display: none; padding-left: 0px;">
                             <li>
-                                <a href="page_manager.html" id="hidden_a">页面列表</a>
+                                <a href="../page/list" id="hidden_a">页面列表</a>
                             </li>
                             <li>
-                                <a href="page_create.html" id="hidden_a">添加页面</a>
+                                <a href="../page/create" id="hidden_a">添加页面</a>
                             </li>
                     </ul>
+<!--                    <li>-->
+<!--                        <a href="#" id="choice_3" onclick="click_trans_change('tag')"">标签管理</a>-->
+<!--                    </li>-->
+<!--                    <ul id="change_3" style="height:auto; display: none; padding-left: 0px;">-->
+<!--                            <li>-->
+<!--                                <a href="tag_manager.html" id="hidden_a">标签列表</a>-->
+<!--                            </li>-->
+<!--                            <li>-->
+<!--                                <a href="tag_create.html" id="hidden_a">添加标签</a>-->
+<!--                            </li>-->
+<!--                    </ul>-->
                     <li>
-                        <a href="#" id="choice_3" onclick="click_trans_change('tag')"">标签管理</a>
-                    </li>
-                    <ul id="change_3" style="height:auto; display: none; padding-left: 0px;">
-                            <li>
-                                <a href="tag_manager.html" id="hidden_a">标签列表</a>
-                            </li>
-                            <li>
-                                <a href="tag_create.html" id="hidden_a">添加标签</a>
-                            </li>
-                    </ul>
-                    <li>
-                        <a href="settings.html" id="choice_4">系统设置</a>
+                        <a href="../setting" id="choice_4">系统设置</a>
                     </li>
                 </ul>
             </div>
             <div id="all_content">
                 <div style="background-color: #323232; height: 30px; border: 3px solid #393939">
-                    <a href= "index.html#" id="content_menu" style="margin-left:30px;">首页</a>
+                    <a href= "/admin" id="content_menu" style="margin-left:30px;">首页</a>
                     <font id="content_menu_font">/</font>
-                    <a href= "introduction.html#" id="content_menu">概述</a>
+                    <a href= "" id="content_menu">概述</a>
                 </div>
                 <hr>
                 <font id="intro_content_header0">网站概要</font>
                 <div id="intro_content0">
-                    <!--需要后端接口-->
-                    <p>目前有 0 篇文章、 0 张页面、 0 个标签(计算由后端完成)</p>
+                    <p>目前有 {{ form.get_articlenum() }} 篇文章、 {{ form.get_pagenum() }} 张页面</p>
                     <p>你可以通过点击下面的链接快速进行编辑：</p>
                     <div style="margin-bottom: 30px;">
-                        <a id="intro_content_a" href="article_create.html#">撰写新文章</a>&nbsp;
-                        <a id="intro_content_a" href="page_create.html#">创建新界面</a>&nbsp;
-                        <a id="intro_content_a" href="tag_create.html#">生成新标签</a>&nbsp;
-                        <a id="intro_content_a" href="settings.html#">系统设置</a>
+                        <a id="intro_content_a" href="../post/create">撰写新文章</a>&nbsp;
+                        <a id="intro_content_a" href="../page/create">创建新界面</a>&nbsp;
+<!--                        <a id="intro_content_a" href="tag_create.html#">生成新标签</a>&nbsp;-->
+                        <a id="intro_content_a" href="../setting">系统设置</a>
                     </div>
                     <hr>
                 </div>
                 <font id="intro_content_header1">最近发布的文章</font>
                 <!--需要后端接口-->
                 <div id="intro_content1">
-                    <p>暂无已发布文章(数据上交由后端完成)</p>
+                    {% for article in form.get_articles() %}
+                        <p>{{ article }}</p>
+                    {% endfor %}
                 </div>
                 <font id="intro_content_header2">关于我们</font>
                 <div id="intro_content2">
-                    <p>博客：<a id="intro_content_a" href="https://blog.spidereyes.cn">https://blog.spidereyes.cn/</a></p>
-                    <p>QQ： 1758697352</p>
-                    <p>邮箱：1758697352@qq.com</p>
+                    <p>github：<a id="intro_content_a" href="https://github.com/Cindemor/Flask-Blog"></a></p>
                 </div>
             </div>
         </div>
-    <script type="text/javascript" src="js\click_trans.js"></script>
-    <script type="text/javascript" src="js\to_page.js"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/click_trans.js')}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/to_page.js' )}}"></script>
 </body>
 </html>
