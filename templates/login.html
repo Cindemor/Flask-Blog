@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>后台登录</title>
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+    <!-- CSS Files -->
+    <link href="static/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="static/css/now-ui-kit.css?v=1.1.0" rel="stylesheet" />
+    <!--  Social tags      -->
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <style type="text/css">
+        #remember-password-container {width: 80px;height: 24px;position: absolute;top: 50%;left: 50%;margin: 75px 0 0 -40px;text-align: center;}
+        #remember-password-container .remember-password-content {position: relative;}
+        #remember-password-container input[type=checkbox] {width: 16px;height: 16px;position: absolute;opacity: 0;cursor: pointer;z-index: 2;font-size: initial;}
+        #remember-password-container .remember-me-label {color: #000;margin-left: 25px;cursor: pointer;}
+        #remember-password-container .remember-me-label::selection {background: rgba(0,0,0,0);}
+        #remember-password-container span {position: absolute;top: 4px;width: 14px;height: 14px;border: 1px solid #d6d6d6;border-radius: 3px;
+        background: url(static/img/checkbox.png);background-size: 14px;background-repeat: no-repeat;background-position-x: 0px;background-position-y: 20px;}
+        #remember-password-container input[type=checkbox]:checked + span {background-position-y: 0px;}
+    </style>
+</head>
+<body class="login-page sidebar-collapse">
+    <!-- End Navbar -->
+    <div class="page-header" filter-color="transparent">
+        <div class="page-header-image" style="background-image:url(static/img/login.jpg)"></div>
+        <div class="container">
+            <div class="col-md-4 content-center">
+                <div class="card card-login card-plain">
+                    <form class="form" action="/admin" method="post">
+                        {{ form.csrf_token }}
+                        <div class="header header-primary text-center">
+                            <div class="logo-container">
+                                <img src="static/img/now-logo.png" alt="">
+                            </div>
+                        </div>
+                        <p style="color:red">{{ msg }}</p>
+                        <div class="content">
+                            <div class="input-group form-group-no-border input-lg">
+                                <span class="input-group-addon">
+                                    <i class="now-ui-icons users_circle-08"></i>
+                                </span>
+                                {{ form.username(class="form-control", placeholder="用户名") }}
+                            </div>
+                            {% for error in form.username.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            <div class="input-group form-group-no-border input-lg">
+                                <span class="input-group-addon">
+                                    <i class="now-ui-icons text_caps-small"></i>
+                                </span>
+                                {{ form.password(placeholder="密码", class="form-control") }}
+                            </div>
+                             {% for error in form.password.errors %}
+                                    <p style="margin-bottom:1rem; color:red;">{{ error }}</p>
+                                {% endfor %}
+                        </div>
+                        <div id="remember-password-container">
+                            <div class="remember-password-content">
+                                {{ form.check(id="remember-me-checkbox") }}
+                                <span></span>
+                                {{ form.check.label(class="remember-me-label", text="记住我", for="remember-me-checkbox",
+                                style="color:white; font-family:\"Montserrat\", \"Helvetica Neue\", Arial, sans-serif; font-size: 14px") }}
+                            </div>
+                        </div>
+                        <div class="footer text-center">
+<!--                            <a href="" class="btn btn-primary btn-round btn-lg btn-block">登录</a>-->
+                            {{ form.submit(class="btn btn-primary btn-round btn-lg btn-block", value="登录") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

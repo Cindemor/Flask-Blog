@@ -3,9 +3,6 @@ from templates_class import Template
 from flask import Flask, render_template, redirect, request, session, flash, send_from_directory, Session
 from flask_wtf.file import  FileStorage
 import os
-from db import db, Siteclass
-from DBObj import DBObject
-from sqlalchemy.schema import CreateTable
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -20,19 +17,9 @@ def jump():
 @app.route("/index", methods=["GET", "POST"])
 def index_page():
     print(request.query_string)
-    db.create_all()
     form = Template()
-    # print(DBObject.query.all())
-    # print(DBObject.query.order_by(DBObject.sitename.desc()).all())
-    # print(DBObject.query.filter(DBObject.sitename.like('spidere%')).all())
-    # print(DBObject.query.get(2).sitename)
-    # if "Logoname" not in session and "sitename" not in session:
-    #     session["Logoname"] = "spidereyes.png"
-    #     session["sitename"] = "spidereyes"
     if request.method == "POST":
         data = form.data
-        print(form.data)
-
         if form.validate_on_submit(): #提交数据有效
             session["sitename"] = data["Sitename"]
             filename = form.Logo.data.filename

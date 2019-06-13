@@ -18,9 +18,15 @@ for(var l = 0; l < initial.length; l++)
 
 function calendar(y, m, d)
 {
-    document.getElementById("date").value = y + "年" + m + "月" + d + "日";
+    var myDate = new Date();
+    m = String(m)
+    d = String(d)
+    if(m.length == 1)
+        m = "0" + m
+    if(d.length == 1)
+        d = "0" + d
+    document.getElementById("date").value = y + "-" + m + "-" + d + " " + myDate.getHours() + ":" + myDate.getMinutes() + ":" + myDate.getSeconds();
 }
-
 function search()
 {
     var value = document.getElementById("search_text").value;

@@ -1,12 +1,14 @@
-from flask import render_template, Flask, views
+from flask import render_template, Flask, views, request, redirect, make_response, current_app
 from DBUtils.PooledDB import PooledDB
 import markdown
 import cgi
 from config import Config
 import pymysql
 import time
-from db_class import aorp_data, archives_data, index_data
+from index_classes import aorp_data, archives_data, index_data
 import re
+from admin_classes import LoginForm, CookieManager
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -198,16 +200,57 @@ class aorp_view(views.View):
         db.close()
         return render_template('post.html', data = fuck)
 
-app.add_url_rule('/', view_func=index_view.as_view('index'))
-app.add_url_rule('/archives', view_func=archives_view.as_view('archives'))
-app.add_url_rule('/post/<aname>', view_func=aorp_view.as_view('articles'))
-app.add_url_rule('/page/<pname>', view_func=aorp_view.as_view('pages'))
+class login_view(views.View):
+    def dispatch_request(self):
+        form = LoginForm()
+        print(form.data)
+        if request.method == "POST":
+            if form.validate():
+                db = POOL.connection()
+                cursor = db.cursor()
+                cursor.execute("select username from admin_")
+                usernames = cursor.fetchall()
+                print(usernames)
+                if (form.username.data,) in usernames:
+                    cursor.execute("select password_ from admin_ where username = '" + form.username.data + "'")
+                    temp = cursor.fetchone()
+                    if temp == (form.password.data,) and form.check.data == True:
+                        response = make_response(redirect("/intro"))
+                        cookie = CookieManager(form.username.data)
+                        cookie.setcookie(response)
+                        print(cookie.get_cookie())
+                        return response
+                    elif temp == (form.password.data,):
+                        return redirect("/intro")
+                    else:
+                        form.username.data = ""
+                        return render_template("login.html", form=form, msg="密码错误！")
+                else:
+                    form.username.data = ""
+                    return render_template("login.html", form=form, msg="输入的账号不存在！")
+            else:
+                return render_template("login.html", form=form)
+        else:
+            return render_template("login.html", form=form)
+
+class intro_view(views.View):
+    def dispatch_request(self):
+        if request.cookies.get("user"):
+            return "Hello" + request.cookies.get("user")
+        else:
+            return "you have no cookie"
+app.add_url_rule('/', view_func=index_view.as_view('index'), methods=["GET"])
+app.add_url_rule('/archives', view_func=archives_view.as_view('archives'), methods=["GET"])
+app.add_url_rule('/post/<aname>', view_func=aorp_view.as_view('articles'), methods=["GET"])
+app.add_url_rule('/page/<pname>', view_func=aorp_view.as_view('pages'), methods=["GET"])
+app.add_url_rule('/admin', view_func=login_view.as_view('login'), methods=["GET", "POST"])
+app.add_url_rule('/intro', view_func=intro_view.as_view('introduction'), methods=["GET"])
+
 
 
 # @app.route('/post/<article_path>')
 # def article(article_path):
 #     post = md2html()
 #     return render_template('post.html', article = post)
-
 if __name__ == '__main__':
     app.run(debug = True, port = '80')

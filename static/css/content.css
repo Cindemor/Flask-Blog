@@ -101,9 +101,8 @@
 {
     width: 365px;
     height: 22px;
-    border-radius: 4%;
     border:1px solid #999;
-    background-color: aliceblue;
+    background-color: white;
     padding-left:10px;
 }
 #article_create_right #select #select_expand
@@ -143,9 +142,9 @@
 #setting_content input.text {
     width: 500px;
     height: 22px;
-    border-radius: 4%;
+    border-radius: 2%;
     border:1px solid #999;
-    background-color: aliceblue;
+    background-color: white;
     padding-left:10px;
 }
 #article_create_right #select:hover,
