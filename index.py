@@ -248,11 +248,11 @@ class intro_view(views.View):
             nums = cursor.fetchall()
             post_num = nums[0][0]
             page_num = nums[1][0]
-            cursor.execute("select html,head from article_page where ispage = 0 and draft = 0 and open_degree = 1 "
+            cursor.execute("select html, head, substring(article_date, 1, 10) from article_page where ispage = 0 and draft = 0 and open_degree = 1 "
             "order by unix_timestamp(article_date) desc limit 5")
             articles = list()
             for i in cursor.fetchall():
-                articles.append(dict({'title': i[1], 'href': i[0]}))
+                articles.append(dict({'title': i[1], 'href': i[0], 'date': i[2]}))
             cursor.close()
             db.close()
             intro_form = IntroForm(sitename, post_num, page_num, articles)

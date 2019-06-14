@@ -82,7 +82,7 @@
                 <!--需要后端接口-->
                 <div id="intro_content1">
                     {% for article in form.get_articles() %}
-                        <p><a id="intro_content_a" href="../admin/edit/{{ article['href'] }}">{{ article['title'] }}</a></p>
+                        <p><a id="intro_content_a" href="../admin/edit/{{ article['href'] }}">{{ article['date'] }}&emsp;{{ article['title'] }}</a></p>
                     {% endfor %}
                 </div>
                 <font id="intro_content_header2">关于我们</font>
