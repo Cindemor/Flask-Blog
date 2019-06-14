@@ -7,7 +7,7 @@ import pymysql
 import time
 from index_classes import aorp_data, archives_data, index_data
 import re
-from admin_classes import LoginForm, IntroForm, SettingForm
+from admin_classes import LoginForm, IntroForm, SettingForm, aorpForm
 import os
 from datetime import timedelta
 
@@ -262,47 +262,50 @@ class intro_view(views.View):
 
 class setting_view(views.View):
     def dispatch_request(self):
-        form = SettingForm()
-        print(form.data)
-        db = POOL.connection()
-        cursor = db.cursor()
-        if request.method == "POST":
-            if form.validate_on_submit():
-                if form.Logo.data.filename:
-                    RE = ".*(\..*)$" # 取文件后缀
-                    now = str(time.time()) # 时间戳作为文件名
-                    filename =  now + re.findall(RE, form.Logo.data.filename)[0]
-                    form.Logo.data.save(os.path.join(app.config["UPLOAD_PATH"], filename))
-                    cursor.execute("select logo from setting")
-                    past_name = cursor.fetchone()[0]  # 删除当前库中的文件
-                    os.remove(app.config["UPLOAD_PATH"] + "\\" + past_name)
-                    try:
-                        sql = "update setting set logo = '" + filename + "', sitename = '" + form.Sitename.data \
-                               + "', sitedesc = '" + form.Sitedesc.data + "', siteloc = '" + form.Siteloc.data \
-                               + "', githubloc = '" + form.Sitegitloc.data + "', gongxinbeian = '" + form.Sitebeian0.data \
-                               + "', gonganbeian = '" + form.Sitebeian1.data + "'"
-                        cursor.execute(sql)
-                        db.commit()
-                    except:
-                        db.rollback()
-                    return render_template("settings.html", form=form, fname=filename)
+        if session.get('user'):
+            form = SettingForm()
+            print(form.data)
+            db = POOL.connection()
+            cursor = db.cursor()
+            if request.method == "POST":
+                if form.validate_on_submit():
+                    if form.Logo.data.filename:
+                        RE = ".*(\..*)$" # 取文件后缀
+                        now = str(time.time()) # 时间戳作为文件名
+                        filename =  now + re.findall(RE, form.Logo.data.filename)[0]
+                        form.Logo.data.save(os.path.join(app.config["UPLOAD_PATH"], filename))
+                        cursor.execute("select logo from setting")
+                        past_name = cursor.fetchone()[0]  # 删除当前库中的文件
+                        os.remove(app.config["UPLOAD_PATH"] + "\\" + past_name)
+                        try:
+                            sql = "update setting set logo = '" + filename + "', sitename = '" + form.Sitename.data \
+                                   + "', sitedesc = '" + form.Sitedesc.data + "', siteloc = '" + form.Siteloc.data \
+                                   + "', githubloc = '" + form.Sitegitloc.data + "', gongxinbeian = '" + form.Sitebeian0.data \
+                                   + "', gonganbeian = '" + form.Sitebeian1.data + "'"
+                            cursor.execute(sql)
+                            db.commit()
+                        except:
+                            db.rollback()
+                        return render_template("settings.html", form=form, fname=filename)
+                    else:
+                        try:
+                            cursor.execute("update setting set sitename = '" + form.Sitename.data
+                                           + "', sitedesc = '" + form.Sitedesc.data + "', siteloc = '" + form.Siteloc.data
+                                           + "', githubloc = '" + form.Sitegitloc.data + "', gongxinbeian = '" + form.Sitebeian0.data
+                                           + "', gonganbeian = '" + form.Sitebeian1.data + "'")
+                            db.commit()
+                        except:
+                            db.rollback()
+                        cursor.execute("select logo from setting")
+                        return render_template("settings.html", form=form, fname=cursor.fetchone()[0])
                 else:
-                    try:
-                        cursor.execute("update setting set sitename = '" + form.Sitename.data
-                                       + "', sitedesc = '" + form.Sitedesc.data + "', siteloc = '" + form.Siteloc.data
-                                       + "', githubloc = '" + form.Sitegitloc.data + "', gongxinbeian = '" + form.Sitebeian0.data
-                                       + "', gonganbeian = '" + form.Sitebeian1.data + "'")
-                        db.commit()
-                    except:
-                        db.rollback()
-                    cursor.execute("select logo from setting")
-                    return render_template("settings.html", form=form, fname=cursor.fetchone()[0])
+                    form_fname = self.search_database(cursor, form)
+                    return render_template("settings.html", form=form_fname[0], fname=form_fname[1])
             else:
                 form_fname = self.search_database(cursor, form)
                 return render_template("settings.html", form=form_fname[0], fname=form_fname[1])
         else:
-            form_fname = self.search_database(cursor, form)
-            return render_template("settings.html", form=form_fname[0], fname=form_fname[1])
+            return redirect("/admin")
 
     def search_database(self, cursor, form):
         cursor.execute("select sitename, lower(logo), sitedesc, siteloc, githubloc, gongxinbeian, gonganbeian from setting")
@@ -316,6 +319,40 @@ class setting_view(views.View):
         form.Sitebeian1.data = result[6]
         return (form, fname)
 
+class aorplist_view(views.View):
+    def dispatch_request(self, type):
+        if session.get('user'):
+            db = POOL.connection()
+            cursor = db.cursor()
+            if type == "page":
+                sql = "select html, head, article_date, author, draft from article_page where ispage = 1 and author = 'spider' order by article_date desc"
+                cursor.execute(sql)
+                query_result = cursor.fetchall()
+                result = list()
+                for i in query_result:
+                    form = aorpForm(i[1], "草稿" if i[4] else "已发布", i[2], i[3])
+                    result.append(form)
+                return render_template("page_manager.html", contents = result, sitename = self.get_sitename())
+            elif type == "post":
+                sql = "select html, head, article_date, author, draft from article_page where ispage = 0 and author = 'spider' order by article_date desc"
+                cursor.execute(sql)
+                query_result = cursor.fetchall()
+                result = list()
+                for i in query_result:
+                    form = aorpForm(i[1], "草稿" if i[4] else "已发布", i[2], i[3])
+                    result.append(form)
+                return render_template("article_manager.html", contents = result, sitename = self.get_sitename())
+            else:
+                return redirect("/none")
+        else:
+            return redirect("/admin")
+    def get_sitename(self):
+        db = POOL.connection()
+        sql = "select sitename from setting"
+        cursor = db.cursor()
+        cursor.execute(sql)
+        return cursor.fetchone()[0]
+
 @app.route("/showlogo/<path:filename>", methods=["GET"])
 def show_pic(filename):
     return send_from_directory(app.config["UPLOAD_PATH"], filename)
@@ -327,6 +364,7 @@ app.add_url_rule('/page/<pname>', view_func=aorp_view.as_view('pages'), methods=
 app.add_url_rule('/admin', view_func=login_view.as_view('login'), methods=["GET", "POST"])
 app.add_url_rule('/admin/intro', view_func=intro_view.as_view('introduction'), methods=["GET"])
 app.add_url_rule('/admin/setting', view_func=setting_view.as_view('settings'), methods=["GET", "POST"])
+app.add_url_rule('/admin/<type>/list', view_func=aorplist_view.as_view('aorplist'), methods=["GET"])
 
 
 

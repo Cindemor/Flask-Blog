@@ -1,36 +1,36 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>spidereyes博客后台系统</title>
+        <title>{{ sitename }}-articlelist</title>
         <meta charset="UTF-8">
-        <link href="css\main.css"" rel="stylesheet">
-        <link href="css\left.css" rel="stylesheet">
-        <link href="css\content.css" rel="stylesheet">
-        <link href="css\manager.css" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/main.css' )}}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/content.css' )}}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/left.css' )}}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/manager.css' )}}" rel="stylesheet">
     </head>
     <body>
         <div id="all">
             <div id="all_left">
                 <div id="left_logo">
                     <h1 id="left_head">
-                        <a href="">
-                            spidereyes
+                        <a href="" id="refresh">
+                            {{ sitename }}
                         </a>
                     </h1>
                 </div>
                 <ul id="left_ul">
                     <li>
-                        <a href="introduction.html#" id="choice_0">概述</a>
+                        <a href="../intro" id="choice_0">概述</a>
                     </li>
                     <li class="active">
                         <a href="#" id="choice_1" onclick="click_trans_change('article')" class="active">文章管理</a>
                     </li>
                     <ul id="change_1" style="height:auto; padding-left: 0px;"">
                             <li>
-                                <a href="article_manager.html" class="active" id="hidden_a">文章列表</a>
+                                <a href="../post/list" class="active" id="hidden_a">文章列表</a>
                             </li>
                             <li>
-                                <a href="article_create.html" id="hidden_a">添加文章</a>
+                                <a href="../post/create" id="hidden_a">添加文章</a>
                             </li>
                     </ul>
                     <li>
@@ -38,25 +38,25 @@
                     </li>
                     <ul id="change_2" style="height:auto; display: none; padding-left: 0px;">
                             <li>
-                                <a href="page_manager.html" id="hidden_a">页面列表</a>
+                                <a href="../page/list" id="hidden_a">页面列表</a>
                             </li>
                             <li>
-                                <a href="page_create.html" id="hidden_a">添加页面</a>
+                                <a href="../page/create" id="hidden_a">添加页面</a>
                             </li>
                     </ul>
+<!--                    <li>-->
+<!--                        <a href="#" id="choice_3" onclick="click_trans_change('tag')"">标签管理</a>-->
+<!--                    </li>-->
+<!--                    <ul id="change_3" style="height:auto; display: none; padding-left: 0px;">-->
+<!--                            <li>-->
+<!--                                <a href="tag_manager.html" id="hidden_a">标签列表</a>-->
+<!--                            </li>-->
+<!--                            <li>-->
+<!--                                <a href="tag_create.html" id="hidden_a">添加标签</a>-->
+<!--                            </li>-->
+<!--                    </ul>-->
                     <li>
-                        <a href="#" id="choice_3" onclick="click_trans_change('tag')"">标签管理</a>
-                    </li>
-                    <ul id="change_3" style="height:auto; display: none; padding-left: 0px;">
-                            <li>
-                                <a href="tag_manager.html" id="hidden_a">标签列表</a>
-                            </li>
-                            <li>
-                                <a href="tag_create.html" id="hidden_a">添加标签</a>
-                            </li>
-                    </ul>
-                    <li>
-                        <a href="settings.html" id="choice_4">系统设置</a>
+                        <a href="../setting" id="choice_4">系统设置</a>
                     </li>
                 </ul>
             </div>
@@ -68,7 +68,7 @@
                 </div>
                 <hr>
                 <div id="article_create_content" style="width:auto; height: auto; left: 61%; top: 50px;">
-                    <input type="text" class="text" id="search_text" placeholder="搜索标题关键字（js处理）"/>
+                    <input type="text" class="text" id="search_text" placeholder="搜索标题(关键字)"/>
                     <input type="submit" class="submit" value="Search" onclick="search()"
                     style="width: 60px; position: absolute; top: -1px; left: 319px; height: 28px;"/>
                 </div>
@@ -94,48 +94,32 @@
                             </tr>
                         </thead>
                         <tbody id="tag_list_body">
+                        {% for content in contents %}
                             <tr>
                                 <td class="search_choose">
-                                    <div>样例2</div>
+                                    <div>{{ content.get_name() }}</div>
                                 </td>
                                 <td>
-                                    <div>londers</div>
+                                    <div>{{ content.get_author() }}</div>
                                 </td>
                                 <td>
-                                    <div>已布</div>
+                                    <div>{{ content.get_status() }}</div>
                                 </td>
                                 <td>
-                                    <div>tie</div>
+                                    <div>{{ content.get_date() }}</div>
                                 </td>
                                 <td>
                                     <input type="submit" class="edit" value="编辑" />
                                     <input type="submit" class="delete" value="删除" />
                                 </td>
                             </tr>
-                            <tr>
-                                <td class="search_choose">
-                                    <div>样例1</div>
-                                </td>
-                                <td>
-                                    <div>lonespiders</div>
-                                </td>
-                                <td>
-                                    <div>已发布</div>
-                                </td>
-                                <td>
-                                    <div>time</div>
-                                </td>
-                                <td>
-                                    <input type="submit" class="edit" value="编辑" />
-                                    <input type="submit" class="delete" value="删除" />
-                                </td>
-                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>  
             </div>
         </div>
-    <script type="text/javascript" src="js\click_trans.js"></script>
-    <script type="text/javascript" src="js\to_page.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/click_trans.js')}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/to_page.js' )}}"></script>
 </body>
 </html>

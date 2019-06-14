@@ -35,3 +35,18 @@ class IntroForm(FlaskForm):
         return self.__pagenum
     def get_articles(self):
         return self.__articles
+
+class aorpForm(FlaskForm):
+    def __init__(self, name, status, date, author):
+        self.__name = name
+        self.__status = status
+        self.__date = date
+        self.__author = author
+    def get_name(self):
+        return self.__name
+    def get_status(self):
+        return self.__status
+    def get_author(self):
+        return self.__author
+    def get_date(self):
+        return self.__date
