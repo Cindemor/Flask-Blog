@@ -252,7 +252,7 @@ class intro_view(views.View):
             "order by unix_timestamp(article_date) desc limit 5")
             articles = list()
             for i in cursor.fetchall():
-                articles.append(dict({'title':i[1], 'href':"../../post/"+i[0]}))
+                articles.append(dict({'title': i[1], 'href': i[0]}))
             cursor.close()
             db.close()
             intro_form = IntroForm(sitename, post_num, page_num, articles)

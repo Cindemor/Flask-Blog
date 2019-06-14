@@ -12,7 +12,7 @@
             <div id="all_left">
                 <div id="left_logo">
                     <h1 id="left_head">
-                        <a href="/">
+                        <a href="">
                             {{ form.get_sitename() }}
                         </a>
                     </h1>
@@ -26,10 +26,10 @@
                     </li>
                     <ul id="change_1" style="height:auto; display: none; padding-left: 0px;">
                             <li>
-                                <a href="../post/list" id="hidden_a">文章列表</a>
+                                <a href="../admin/post/list" id="hidden_a">文章列表</a>
                             </li>
                             <li>
-                                <a href="../post/create" id="hidden_a">添加文章</a>
+                                <a href="../admin/post/create" id="hidden_a">添加文章</a>
                             </li>
                     </ul>
                     <li>
@@ -37,10 +37,10 @@
                     </li>
                     <ul id="change_2" style="height:auto; display: none; padding-left: 0px;">
                             <li>
-                                <a href="../page/list" id="hidden_a">页面列表</a>
+                                <a href="../admin/page/list" id="hidden_a">页面列表</a>
                             </li>
                             <li>
-                                <a href="../page/create" id="hidden_a">添加页面</a>
+                                <a href="../admin/page/create" id="hidden_a">添加页面</a>
                             </li>
                     </ul>
 <!--                    <li>-->
@@ -55,7 +55,7 @@
 <!--                            </li>-->
 <!--                    </ul>-->
                     <li>
-                        <a href="../setting" id="choice_4">系统设置</a>
+                        <a href="../admin/setting" id="choice_4">系统设置</a>
                     </li>
                 </ul>
             </div>
@@ -71,18 +71,18 @@
                     <p>目前有 {{ form.get_articlenum() }} 篇文章、 {{ form.get_pagenum() }} 张页面</p>
                     <p>你可以通过点击下面的链接快速进行编辑：</p>
                     <div style="margin-bottom: 30px;">
-                        <a id="intro_content_a" href="../post/create">撰写新文章</a>&nbsp;
-                        <a id="intro_content_a" href="../page/create">创建新界面</a>&nbsp;
+                        <a id="intro_content_a" href="../admin/post/create">撰写新文章</a>&nbsp;
+                        <a id="intro_content_a" href="../admin/page/create">创建新界面</a>&nbsp;
 <!--                        <a id="intro_content_a" href="tag_create.html#">生成新标签</a>&nbsp;-->
-                        <a id="intro_content_a" href="../setting">系统设置</a>
+                        <a id="intro_content_a" href="../admin/setting">系统设置</a>
                     </div>
                     <hr>
                 </div>
-                <font id="intro_content_header1">最近发布的文章</font>
+                <font id="intro_content_header1">最近发布开放的文章</font>
                 <!--需要后端接口-->
                 <div id="intro_content1">
                     {% for article in form.get_articles() %}
-                        <p><a id="intro_content_a" href="{{ article['href'] }}">{{ article['title'] }}</a></p>
+                        <p><a id="intro_content_a" href="../admin/edit/{{ article['href'] }}">{{ article['title'] }}</a></p>
                     {% endfor %}
                 </div>
                 <font id="intro_content_header2">关于我们</font>
