@@ -140,8 +140,8 @@
 
 #tag_content input.text,
 #setting_content input.text {
-    width: 500px;
-    height: 22px;
+    width: 550px;
+    height: 30px;
     border-radius: 2%;
     border:1px solid #999;
     background-color: white;
@@ -202,7 +202,7 @@
 #sitebeian0,
 #sitebeian1{
     color: #666;
-    font-size: 15px;
+    font-size: 17px;
 }
 #setting_content .pic_capacity {
     position: relative;

@@ -1,4 +1,4 @@
-from flask import render_template, Flask, views, request, redirect, make_response, session
+from flask import render_template, Flask, views, request, redirect, make_response, session, send_from_directory
 from DBUtils.PooledDB import PooledDB
 import markdown
 import cgi
@@ -7,9 +7,9 @@ import pymysql
 import time
 from index_classes import aorp_data, archives_data, index_data
 import re
-from admin_classes import LoginForm, IntroForm
+from admin_classes import LoginForm, IntroForm, SettingForm
+import os
 from datetime import timedelta
-
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -259,12 +259,74 @@ class intro_view(views.View):
             return render_template("introduction.html", form=intro_form)
         else:
             return redirect("/admin")
+
+class setting_view(views.View):
+    def dispatch_request(self):
+        form = SettingForm()
+        print(form.data)
+        db = POOL.connection()
+        cursor = db.cursor()
+        if request.method == "POST":
+            if form.validate_on_submit():
+                if form.Logo.data.filename:
+                    RE = ".*(\..*)$" # 取文件后缀
+                    now = str(time.time()) # 时间戳作为文件名
+                    filename =  now + re.findall(RE, form.Logo.data.filename)[0]
+                    form.Logo.data.save(os.path.join(app.config["UPLOAD_PATH"], filename))
+                    cursor.execute("select logo from setting")
+                    past_name = cursor.fetchone()[0]  # 删除当前库中的文件
+                    os.remove(app.config["UPLOAD_PATH"] + "\\" + past_name)
+                    try:
+                        sql = "update setting set logo = '" + filename + "', sitename = '" + form.Sitename.data \
+                               + "', sitedesc = '" + form.Sitedesc.data + "', siteloc = '" + form.Siteloc.data \
+                               + "', githubloc = '" + form.Sitegitloc.data + "', gongxinbeian = '" + form.Sitebeian0.data \
+                               + "', gonganbeian = '" + form.Sitebeian1.data + "'"
+                        cursor.execute(sql)
+                        db.commit()
+                    except:
+                        db.rollback()
+                    return render_template("settings.html", form=form, fname=filename)
+                else:
+                    try:
+                        cursor.execute("update setting set sitename = '" + form.Sitename.data
+                                       + "', sitedesc = '" + form.Sitedesc.data + "', siteloc = '" + form.Siteloc.data
+                                       + "', githubloc = '" + form.Sitegitloc.data + "', gongxinbeian = '" + form.Sitebeian0.data
+                                       + "', gonganbeian = '" + form.Sitebeian1.data + "'")
+                        db.commit()
+                    except:
+                        db.rollback()
+                    cursor.execute("select logo from setting")
+                    return render_template("settings.html", form=form, fname=cursor.fetchone()[0])
+            else:
+                form_fname = self.search_database(cursor, form)
+                return render_template("settings.html", form=form_fname[0], fname=form_fname[1])
+        else:
+            form_fname = self.search_database(cursor, form)
+            return render_template("settings.html", form=form_fname[0], fname=form_fname[1])
+
+    def search_database(self, cursor, form):
+        cursor.execute("select sitename, lower(logo), sitedesc, siteloc, githubloc, gongxinbeian, gonganbeian from setting")
+        result = cursor.fetchone()
+        form.Sitename.data = result[0]
+        fname = result[1]
+        form.Sitedesc.data = result[2]
+        form.Siteloc.data = result[3]
+        form.Sitegitloc.data = result[4]
+        form.Sitebeian0.data = result[5]
+        form.Sitebeian1.data = result[6]
+        return (form, fname)
+
+@app.route("/showlogo/<path:filename>", methods=["GET"])
+def show_pic(filename):
+    return send_from_directory(app.config["UPLOAD_PATH"], filename)
+
 app.add_url_rule('/', view_func=index_view.as_view('index'), methods=["GET"])
 app.add_url_rule('/archives', view_func=archives_view.as_view('archives'), methods=["GET"])
 app.add_url_rule('/post/<aname>', view_func=aorp_view.as_view('articles'), methods=["GET"])
 app.add_url_rule('/page/<pname>', view_func=aorp_view.as_view('pages'), methods=["GET"])
 app.add_url_rule('/admin', view_func=login_view.as_view('login'), methods=["GET", "POST"])
 app.add_url_rule('/admin/intro', view_func=intro_view.as_view('introduction'), methods=["GET"])
+app.add_url_rule('/admin/setting', view_func=setting_view.as_view('settings'), methods=["GET", "POST"])
 
 
 
