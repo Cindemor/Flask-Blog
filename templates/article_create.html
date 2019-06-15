@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>spidereyes博客后台系统</title>
+        <title>{{ sitename }}-articlecreate</title>
         <meta charset="UTF-8">
-        <link href="css\main.css"" rel="stylesheet">
-        <link href="css\left.css" rel="stylesheet">
-        <link href="css\content.css" rel="stylesheet">
-        <link href="css\calendar.css" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/main.css' )}}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/content.css' )}}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/left.css' )}}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/manager.css' )}}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/calendar.css' )}}" rel="stylesheet">
     </head>
     <body>
         <div id="all">
@@ -14,23 +15,23 @@
                 <div id="left_logo">
                     <h1 id="left_head">
                         <a href="">
-                            spidereyes
+                            {{ sitename }}
                         </a>
                     </h1>
                 </div>
                 <ul id="left_ul">
                     <li>
-                        <a href="introduction.html#" id="choice_0">概述</a>
+                        <a href="../intro" id="choice_0">概述</a>
                     </li>
                     <li class="active">
                         <a href="#" id="choice_1" onclick="click_trans_change('article')" class="active">文章管理</a>
                     </li>
                     <ul id="change_1" style="height:auto; padding-left: 0px;">
                             <li>
-                                <a href="article_manager.html" id="hidden_a">文章列表</a>
+                                <a href="../post/list" id="hidden_a">文章列表</a>
                             </li>
                             <li>
-                                <a href="article_create.html" class="active" id="hidden_a">添加文章</a>
+                                <a href="../post/create" class="active" id="hidden_a">添加文章</a>
                             </li>
                     </ul>
                     <li>
@@ -38,32 +39,32 @@
                     </li>
                     <ul id="change_2" style="height:auto; display: none; padding-left: 0px;">
                             <li>
-                                <a href="page_manager.html" id="hidden_a">页面列表</a>
+                                <a href="../page/list" id="hidden_a">页面列表</a>
                             </li>
                             <li>
-                                <a href="page_create.html" id="hidden_a">添加页面</a>
+                                <a href="../page/create" id="hidden_a">添加页面</a>
                             </li>
                     </ul>
+<!--                    <li>-->
+<!--                        <a href="#" id="choice_3" onclick="click_trans_change('tag')"">标签管理</a>-->
+<!--                    </li>-->
+<!--                    <ul id="change_3" style="height:auto; display: none; padding-left: 0px;">-->
+<!--                            <li>-->
+<!--                                <a href="tag_manager.html" id="hidden_a">标签列表</a>-->
+<!--                            </li>-->
+<!--                            <li>-->
+<!--                                <a href="tag_create.html" id="hidden_a">添加标签</a>-->
+<!--                            </li>-->
+<!--                    </ul>-->
                     <li>
-                        <a href="#" id="choice_3" onclick="click_trans_change('tag')"">标签管理</a>
-                    </li>
-                    <ul id="change_3" style="height:auto; display: none; padding-left: 0px;">
-                            <li>
-                                <a href="tag_manager.html" id="hidden_a">标签列表</a>
-                            </li>
-                            <li>
-                                <a href="tag_create.html" id="hidden_a">添加标签</a>
-                            </li>
-                    </ul>
-                    <li>
-                        <a href="settings.html" id="choice_4">系统设置</a>
+                        <a href="../setting" id="choice_4">系统设置</a>
                     </li>
                 </ul>
             </div>
         </div>
             <div id="all_content">
                 <div style="background-color: #323232; height: 30px; border: 3px solid #393939">
-                    <a href= "index.html#" id="content_menu" style="margin-left:30px;">首页</a>
+                    <a href= "../admin" id="content_menu" style="margin-left:30px;">首页</a>
                     <font id="content_menu_font">/ 文章管理 /</font>
                     <a href= "" id="content_menu">添加文章</a>
                 </div>
@@ -71,12 +72,20 @@
                 <div id="article_create_content">
                     <div id="article_create_left">
                         <p id="article_font">撰写文章</p>
-                        <input type="text" class="text notnone_text" placeholder="标题（不可为空）" oninput="not_none(this, 0)"/>
+<!--                        <input type="text" class="text notnone_text" placeholder="标题（不可为空）" oninput="not_none(this, 0)"/>-->
+                        {{ form.Header(class = "text notnone_text", placeholder="标题（不可为空）", oninput="not_none(this, 0)") }}
                         <p id="informations0"></p>
-                        <p style="margin-top:30px;">文章URL： https://blog.spidereyes.cn/post/&nbsp;
-                            <input type="text" class="text notnone_text" placeholder="文件名（不可为空）" oninput="not_none(this, 1)"/>
+                        {% for error in form.Header.errors %}
+                            <p style="color: red">{{ error }}</p>
+                        {% endfor %}
+                        <p style="margin-top:30px;">文章URL： {{ siteip }}post/&nbsp;
+<!--                            <input type="text" class="text notnone_text" placeholder="文件名（不可为空）" oninput="not_none(this, 1)"/>-->
+                            {{ form.Filename(class = "text notnone_text", placeholder="文件名（不可为空）", oninput="not_none(this, 1)") }}
                             &nbsp;.html</p>
                         <p id="informations1" style="margin-left: 300px;"></p>
+                        {% for error in form.Filename.errors %}
+                            <p style="color: red">{{ error }}</p>
+                        {% endfor %}
                         <div id="article_write">
                             <div style="top: 0; background-color:aliceblue;">
                                 <ul id="article_write_choices">
@@ -149,9 +158,9 @@
                 </div>
             </div>
         </div>
-    <script type="text/javascript" src="js\click_trans.js"></script>
-    <script type="text/javascript" src="js\to_page.js"></script>
-    <script type="text/javascript" src="js\jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/click_trans.js')}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/to_page.js' )}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.1.min.js')}}"></script>
     <script>
         $(function(){
             var now = new Date()

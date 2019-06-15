@@ -1,9 +1,0 @@
-{% macro form_field(field) %}
-    {{ field.label }}<br>
-    {{ field(class="text notnone_text", id="sitename", oninput="not_none(this, 0)") }}<br>
-    {% if field.errors %}
-        {% for error in field.errors %}
-            <small style="color: red">{{ error }}</small>
-        {% endfor %}
-    {% endif %}
-{% endmacro %}

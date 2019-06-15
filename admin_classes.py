@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, FileField,SubmitField, PasswordField, BooleanField
+from wtforms import StringField, FileField,SubmitField, PasswordField, TextAreaField
 from wtforms.validators import DataRequired, input_required, url, Length
 
 
@@ -50,3 +50,8 @@ class aorpForm(FlaskForm):
         return self.__author
     def get_date(self):
         return self.__date
+
+class aorpWriteForm(FlaskForm):
+    Header = StringField("header", validators=[DataRequired(message="该字段不可为空")])
+    Filename = StringField("filename", validators=[DataRequired(message="该字段不可为空")])
+    Article = TextAreaField("article")

@@ -7,7 +7,7 @@ import pymysql
 import time
 from index_classes import aorp_data, archives_data, index_data
 import re
-from admin_classes import LoginForm, IntroForm, SettingForm, aorpForm
+from admin_classes import LoginForm, IntroForm, SettingForm, aorpForm, aorpWriteForm
 import os
 from datetime import timedelta
 
@@ -256,9 +256,15 @@ class intro_view(views.View):
             cursor.close()
             db.close()
             intro_form = IntroForm(sitename, post_num, page_num, articles)
-            return render_template("introduction.html", form=intro_form)
+            return render_template("introduction.html", form=intro_form, sitename=self.get_sitename())
         else:
             return redirect("/admin")
+    def get_sitename(self):
+        db = POOL.connection()
+        sql = "select sitename from setting"
+        cursor = db.cursor()
+        cursor.execute(sql)
+        return cursor.fetchone()[0]
 
 class setting_view(views.View):
     def dispatch_request(self):
@@ -353,6 +359,33 @@ class aorplist_view(views.View):
         cursor.execute(sql)
         return cursor.fetchone()[0]
 
+class aorpcreate_view(views.View):
+    def dispatch_request(self, type):
+        if session.get('user'):
+            form = aorpWriteForm()
+            if request.method == "POST":
+                if type == "post":
+                    pass
+                elif type == "page":
+                    pass
+                else:
+                    pass
+            else:
+                if type == "post":
+                    return render_template("article_create.html", form=form, siteip=request.host_url, sitename=self.get_sitename())
+                elif type == "page":
+                    return render_template("page_create.html", form=form, siteip=request.host_url, sitename=self.get_sitename())
+                else:
+                    return redirect("/none")
+        else:
+            return redirect("/admin")
+    def get_sitename(self):
+        db = POOL.connection()
+        sql = "select sitename from setting"
+        cursor = db.cursor()
+        cursor.execute(sql)
+        return cursor.fetchone()[0]
+
 @app.route("/showlogo/<path:filename>", methods=["GET"])
 def show_pic(filename):
     return send_from_directory(app.config["UPLOAD_PATH"], filename)
@@ -364,8 +397,8 @@ app.add_url_rule('/page/<pname>', view_func=aorp_view.as_view('pages'), methods=
 app.add_url_rule('/admin', view_func=login_view.as_view('login'), methods=["GET", "POST"])
 app.add_url_rule('/admin/intro', view_func=intro_view.as_view('introduction'), methods=["GET"])
 app.add_url_rule('/admin/setting', view_func=setting_view.as_view('settings'), methods=["GET", "POST"])
-app.add_url_rule('/admin/<type>/list', view_func=aorplist_view.as_view('aorplist'), methods=["GET"])
-
+app.add_url_rule('/admin/<type>/list', view_func=aorplist_view.as_view('aorplist'), methods=["GET", "POST"])
+app.add_url_rule('/admin/<type>/create', view_func=aorpcreate_view.as_view('aorpcreate'), methods=["POST", "GET"])
 
 
 # @app.route('/post/<article_path>')
