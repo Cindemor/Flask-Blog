@@ -115,7 +115,7 @@
                                     <form action="../page/edit/{{ content.get_file() }}" method="get">
                                         <input type="submit" class="edit" value="编辑" />
                                     </form>
-                                    <form action="../page/delete/{{ content.get_file() }}" method="get" onsubmit="return infor()">
+                                    <form action="../page/delete/{{ content.get_file() }}" method="post" onsubmit="return infor()">
                                         <input type="submit" class="delete" value="删除" />
                                     </form>
                                 </td>
