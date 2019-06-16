@@ -62,8 +62,3 @@ function search()
     }
     show.innerHTML = show_list;
 }
-
-function funny()
-{
-    alert("提交成功（由后端完成）");
-}

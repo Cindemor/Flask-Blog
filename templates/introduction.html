@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>        
-        <title>{{ sitename }}-introduction</title>
+        <title>{{ form.get_sitename() }}-introduction</title>
         <meta charset="UTF-8">
         <link href="{{ url_for('static', filename='css/main.css' )}}" rel="stylesheet">
         <link href="{{ url_for('static', filename='css/content.css' )}}" rel="stylesheet">
@@ -78,11 +78,17 @@
                     </div>
                     <hr>
                 </div>
-                <font id="intro_content_header1">最近发布开放的文章</font>
+                <font id="intro_content_header1">最近发布的文章</font>
                 <!--需要后端接口-->
                 <div id="intro_content1">
                     {% for article in form.get_articles() %}
-                        <p><a id="intro_content_a" href="../admin/edit/{{ article['href'] }}">{{ article['date'] }}&emsp;{{ article['title'] }}</a></p>
+                        <p>{{ article['date'] }}:<a id="intro_content_a" href="../admin/edit/{{ article['href'] }}">&emsp;{{ article['title'] }}</a></p>
+                    {% endfor %}
+                </div>
+                <font id="intro_content_header3">最近添加的页面</font>
+                <div id="intro_content3">
+                    {% for page in form.get_pages() %}
+                        <p>{{ page['date'] }}:<a id="intro_content_a" href="../admin/edit/{{ page['href'] }}">&emsp;{{ page['title'] }}</a></p>
                     {% endfor %}
                 </div>
                 <font id="intro_content_header2">关于我们</font>

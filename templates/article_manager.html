@@ -62,7 +62,7 @@
             </div>
             <div id="all_content">
                 <div style="background-color: #323232; height: 30px; border: 3px solid #393939">
-                    <a href= "../admin" id="content_menu" style="margin-left:30px;">首页</a>
+                    <a href= "../intro" id="content_menu" style="margin-left:30px;">首页</a>
                     <font id="content_menu_font">/ 文章管理 /</font>
                     <a href= "" id="content_menu">文章列表</a>
                 </div>
@@ -109,8 +109,12 @@
                                     <div>{{ content.get_date() }}</div>
                                 </td>
                                 <td>
-                                    <input type="submit" class="edit" value="编辑" />
-                                    <input type="submit" class="delete" value="删除" />
+                                    <form action="../post/edit/{{ content.get_file() }}" method="get">
+                                        <input type="submit" class="edit" value="编辑"/>
+                                    </form>
+                                    <form action="../post/delete/{{ content.get_file() }}" method="get" onsubmit="return infor()">
+                                        <input type="submit" class="delete" value="删除"/>
+                                    </form>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -121,5 +125,15 @@
         </div>
     <script type="text/javascript" src="{{ url_for('static', filename='js/click_trans.js')}}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/to_page.js' )}}"></script>
+    <script type="text/javascript">
+        function infor()
+        {
+            var a = confirm("删除是不可恢复的，你确认要删除吗？");
+            if(a)
+                return true;
+            else
+                return false;
+        }
+    </script>
 </body>
 </html>

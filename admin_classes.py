@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, FileField,SubmitField, PasswordField, TextAreaField
+from wtforms import StringField, FileField,SubmitField, PasswordField, TextAreaField, BooleanField, RadioField
 from wtforms.validators import DataRequired, input_required, url, Length
 
 
@@ -22,11 +22,12 @@ class LoginForm(FlaskForm):
     submit=SubmitField("submit")
 
 class IntroForm(FlaskForm):
-    def __init__(self, sitename, articlenum, pagenum, articles):
+    def __init__(self, sitename, articlenum, pagenum, articles, pages):
         self.__sitename = sitename
         self.__articlenum = articlenum
         self.__pagenum = pagenum
         self.__articles = articles
+        self.__pages = pages
     def get_sitename(self):
         return self.__sitename
     def get_articlenum(self):
@@ -35,13 +36,16 @@ class IntroForm(FlaskForm):
         return self.__pagenum
     def get_articles(self):
         return self.__articles
+    def get_pages(self):
+        return self.__pages
 
 class aorpForm(FlaskForm):
-    def __init__(self, name, status, date, author):
+    def __init__(self, name, status, date, author, file):
         self.__name = name
         self.__status = status
         self.__date = date
         self.__author = author
+        self.__file = file
     def get_name(self):
         return self.__name
     def get_status(self):
@@ -50,8 +54,14 @@ class aorpForm(FlaskForm):
         return self.__author
     def get_date(self):
         return self.__date
+    def get_file(self):
+        return self.__file
 
 class aorpWriteForm(FlaskForm):
     Header = StringField("header", validators=[DataRequired(message="该字段不可为空")])
+    Date = StringField("header", validators=[DataRequired(message="该字段不可为空")])
     Filename = StringField("filename", validators=[DataRequired(message="该字段不可为空")])
     Article = TextAreaField("article")
+    Opendegree = RadioField("choices", choices=[("o", "开放"), ("d", "草稿")])
+    Submit=SubmitField("submit")
+    Author = StringField("author", validators=[DataRequired(message="该字段不可为空")])

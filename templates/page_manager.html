@@ -25,7 +25,7 @@
                     <li>
                         <a href="#" id="choice_1" onclick="click_trans_change('article')">文章管理</a>
                     </li>
-                    <ul id="change_1" style="height:auto; display:none; padding-left: 0px;"">
+                    <ul id="change_1" style="height:auto; display:none; padding-left: 0px;">
                             <li>
                                 <a href="../post/list" id="hidden_a">文章列表</a>
                             </li>
@@ -62,13 +62,13 @@
             </div>
             <div id="all_content">
                 <div style="background-color: #323232; height: 30px; border: 3px solid #393939">
-                    <a href= "../admin" id="content_menu" style="margin-left:30px;">首页</a>
+                    <a href= "../intro" id="content_menu" style="margin-left:30px;">首页</a>
                     <font id="content_menu_font">/ 页面管理 /</font>
                     <a href= "" id="content_menu">页面列表</a>
                 </div>
                 <hr>
                 <div id="article_create_content" style="width:auto; height: auto; left: 61%; top: 50px;">
-                    <input type="text" class="text" id="search_text" placeholder="搜索标题关键字（js处理）"/>
+                    <input type="text" class="text" id="search_text" placeholder="搜索标题（关键字）"/>
                     <input type="submit" class="submit" value="Search" onclick="search()"
                     style="width: 60px; position: absolute; top: -1px; left: 319px; height: 28px;"/>
                 </div>
@@ -112,8 +112,12 @@
                                     <div>{{ content.get_date() }}</div>
                                 </td>
                                 <td>
-                                    <input type="submit" class="edit" value="编辑" />
-                                    <input type="submit" class="delete" value="删除" />
+                                    <form action="../page/edit/{{ content.get_file() }}" method="get">
+                                        <input type="submit" class="edit" value="编辑" />
+                                    </form>
+                                    <form action="../page/delete/{{ content.get_file() }}" method="get" onsubmit="return infor()">
+                                        <input type="submit" class="delete" value="删除" />
+                                    </form>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -124,5 +128,15 @@
         </div>
     <script type="text/javascript" src="{{ url_for('static', filename='js/click_trans.js')}}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/to_page.js' )}}"></script>
+        <script type="text/javascript">
+        function infor()
+        {
+            var a = confirm("删除是不可恢复的，你确认要删除吗？");
+            if(a)
+                return true;
+            else
+                return false;
+        }
+    </script>
 </body>
 </html>

@@ -13,7 +13,6 @@ from datetime import timedelta
 
 app = Flask(__name__)
 app.config.from_object(Config)
-
 POOL = PooledDB(
     creator = pymysql,
     host = "127.0.0.1",
@@ -29,8 +28,8 @@ class index_view(views.View):
         code_head = '\n<div class="Code">'
         code_tail = '</div>\n'
         have_head = False
-        input_file = open(name, 'r', encoding='utf-8')
-        input_fullfile = open(name, 'r', encoding='utf-8')
+        input_file = open(app.config["MD_PATH"] + "\\" + name, 'r', encoding='utf-8')
+        input_fullfile = open(app.config["MD_PATH"] + "\\" + name, 'r', encoding='utf-8')
         full = input_fullfile.read()
         line = input_file.readline()
         text = '...'
@@ -53,6 +52,7 @@ class index_view(views.View):
         input_fullfile.close()
         input_file.close()
         return (markdown.markdown(text))
+
     def dispatch_request(self):
         db = POOL.connection()
         cursor = db.cursor()
@@ -69,7 +69,6 @@ class index_view(views.View):
         cursor.execute("select head, html, unix_timestamp(article_date), author, markdown from article_page"
                        " where ispage = 0 and draft = 0 and open_degree = 1 order by unix_timestamp(article_date) desc")
         post_infor = cursor.fetchall()
-        print(post_infor)
         for j in post_infor:
             post_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(j[2]))
             text = self.md2html(j[4])
@@ -127,7 +126,7 @@ class aorp_view(views.View):
         code_head = '\n<div class="Code">'
         code_tail = '</div>\n'
         have_head = False
-        input_file = open(name, 'r', encoding='utf-8')
+        input_file = open(app.config["MD_PATH"] + "\\" + name, 'r', encoding='utf-8')
         line = input_file.readline()
         text = ''
         while line:
@@ -238,25 +237,47 @@ class login_view(views.View):
                 return render_template("login.html", form=form)
 
 class intro_view(views.View):
+
     def dispatch_request(self):
         if session.get('user'):
             db = POOL.connection()
             cursor = db.cursor()
             cursor.execute("select sitename from setting")
             sitename = cursor.fetchall()[0][0]
-            cursor.execute("select count(*) from article_page group by ispage order by ispage")
+            cursor.execute("select count(*), ispage from article_page group by ispage order by ispage")
             nums = cursor.fetchall()
-            post_num = nums[0][0]
-            page_num = nums[1][0]
-            cursor.execute("select html, head, substring(article_date, 1, 10) from article_page where ispage = 0 and draft = 0 and open_degree = 1 "
-            "order by unix_timestamp(article_date) desc limit 5")
+            if len(nums) > 1:
+                post_num = nums[0][0]
+                page_num = nums[1][0]
+            elif len(nums) > 0:
+                if nums[0][1]:
+                    post_num = 0
+                    page_num = nums[0][0]
+                else:
+                    post_num = nums[0][0]
+                    page_num = 0
+            else:
+                intro_form = IntroForm(sitename, 0, 0, [], [])
+                return render_template("introduction.html", form=intro_form)
+            cursor.execute(
+                "select html, head, article_date from article_page where ispage = 0 and draft = 0 and open_degree = 1 "
+                "order by unix_timestamp(article_date) desc limit 5")
+            a = cursor.fetchall()
+            cursor.execute(
+                "select html, head, article_date from article_page where ispage = 1 and draft = 0 and open_degree = 1 "
+                "order by unix_timestamp(article_date) desc limit 5")
+            b = cursor.fetchall()
             articles = list()
-            for i in cursor.fetchall():
+            pages = list()
+            for i in a:
                 articles.append(dict({'title': i[1], 'href': i[0], 'date': i[2]}))
+            for j in b:
+                pages.append(dict({'title': j[1], 'href': j[0], 'date': j[2]}))
             cursor.close()
             db.close()
-            intro_form = IntroForm(sitename, post_num, page_num, articles)
-            return render_template("introduction.html", form=intro_form, sitename=self.get_sitename())
+            intro_form = IntroForm(sitename, post_num, page_num, articles, pages)
+            return render_template("introduction.html", form=intro_form)
+
         else:
             return redirect("/admin")
     def get_sitename(self):
@@ -264,7 +285,10 @@ class intro_view(views.View):
         sql = "select sitename from setting"
         cursor = db.cursor()
         cursor.execute(sql)
-        return cursor.fetchone()[0]
+        temp = cursor.fetchone()[0]
+        cursor.close()
+        db.close()
+        return temp
 
 class setting_view(views.View):
     def dispatch_request(self):
@@ -326,6 +350,8 @@ class setting_view(views.View):
         return (form, fname)
 
 class aorplist_view(views.View):
+    def __init__(self):
+        self.__get = aorpcreate_view()
     def dispatch_request(self, type):
         if session.get('user'):
             db = POOL.connection()
@@ -336,45 +362,82 @@ class aorplist_view(views.View):
                 query_result = cursor.fetchall()
                 result = list()
                 for i in query_result:
-                    form = aorpForm(i[1], "草稿" if i[4] else "已发布", i[2], i[3])
+                    form = aorpForm(i[1], "草稿" if i[4] else "已发布", i[2], i[3], i[0])
                     result.append(form)
-                return render_template("page_manager.html", contents = result, sitename = self.get_sitename())
+                return render_template("page_manager.html", contents = result, sitename = self.__get.get_sitename())
             elif type == "post":
                 sql = "select html, head, article_date, author, draft from article_page where ispage = 0 and author = 'spider' order by article_date desc"
                 cursor.execute(sql)
                 query_result = cursor.fetchall()
                 result = list()
                 for i in query_result:
-                    form = aorpForm(i[1], "草稿" if i[4] else "已发布", i[2], i[3])
+                    form = aorpForm(i[1], "草稿" if i[4] else "已发布", i[2], i[3], i[0])
                     result.append(form)
-                return render_template("article_manager.html", contents = result, sitename = self.get_sitename())
+                return render_template("article_manager.html", contents = result, sitename = self.__get.get_sitename())
             else:
                 return redirect("/none")
         else:
             return redirect("/admin")
-    def get_sitename(self):
-        db = POOL.connection()
-        sql = "select sitename from setting"
-        cursor = db.cursor()
-        cursor.execute(sql)
-        return cursor.fetchone()[0]
+
 
 class aorpcreate_view(views.View):
     def dispatch_request(self, type):
         if session.get('user'):
             form = aorpWriteForm()
-            if request.method == "POST":
+            if request.method == "POST": #post请求
+                author_default = self.get_author() #从admin_表中获取所有作者名
+                db = POOL.connection()
+                cursor = db.cursor()
+                filename = form.Filename.data
                 if type == "post":
-                    pass
+                    cursor.execute("select html from article_page where ispage = 0")
+                    if (filename + ".html",) not in cursor.fetchall():
+                        ispage = str(0)
+                    else:
+                        form.Filename.data = ""
+                        return render_template("article_create.html", form=form, siteip=request.host_url, sitename=self.get_sitename(), msg="不可出现同名文件", author=author_default[0], default=author_default[1])
                 elif type == "page":
-                    pass
+                    cursor.execute("select html from article_page where ispage = 1")
+                    if (filename + ".html",) not in cursor.fetchall():
+                        ispage = str(1)
+                    else:
+                        form.Filename.data = ""
+                        return render_template("page_create.html", form=form, siteip=request.host_url, sitename=self.get_sitename(), msg="不可出现同名文件", author=author_default[0], default=author_default[1])
                 else:
-                    pass
+                    cursor.close()
+                    db.close()
+                    return redirect("/none")
+                header = form.Header.data
+                date = form.Date.data
+                author = form.Author.data
+                md = form.Article.data
+                md_name = str(time.time()) + ".md"
+                with open(app.config["MD_PATH"] + "\\" + md_name, "w", encoding="utf-8") as file:
+                    file.write(md)
+                if form.Opendegree.data == "o":
+                    draft = str(0)
+                elif form.Opendegree.data == "d":
+                    draft = str(1)
+                else:
+                    return redirect("/none")
+                sql = "insert into article_page values ('" + session["user"] + "', '" + filename + ".html', '" + header \
+                + "', '" + date + "', " + "1, '" + author + "', " + ispage + "," + draft + ",'" + md_name + "')"
+                try:
+                    cursor.execute(sql)
+                    db.commit()
+                except:
+                    db.rollback()
+                return redirect("../edit/" + filename + ".html")
             else:
+                author_default = self.get_author()
                 if type == "post":
-                    return render_template("article_create.html", form=form, siteip=request.host_url, sitename=self.get_sitename())
+                    form.Opendegree.data = "o"
+                    return render_template("article_create.html", form=form,
+                                           siteip=request.host_url, sitename=self.get_sitename(), authors=author_default[0], default=author_default[1])
                 elif type == "page":
-                    return render_template("page_create.html", form=form, siteip=request.host_url, sitename=self.get_sitename())
+                    form.Opendegree.data = "o"
+                    return render_template("page_create.html", form=form,
+                                           siteip=request.host_url, sitename=self.get_sitename(), authors=author_default[0], default=author_default[1])
                 else:
                     return redirect("/none")
         else:
@@ -384,7 +447,123 @@ class aorpcreate_view(views.View):
         sql = "select sitename from setting"
         cursor = db.cursor()
         cursor.execute(sql)
-        return cursor.fetchone()[0]
+        temp = cursor.fetchone()[0]
+        cursor.close()
+        db.close()
+        return temp
+    def get_author(self):
+        db = POOL.connection()
+        sql = "select name from admin_"
+        cursor = db.cursor()
+        cursor.execute(sql)
+        temp = cursor.fetchall()
+        cursor.close()
+        db.close()
+        return (temp, temp[0][0])
+
+class aorpedit_view(views.View):
+    def __init__(self):
+        self.__get = aorpcreate_view()
+    def dispatch_request(self, type, filename):
+        if session.get('user'):
+            form = aorpWriteForm()
+            db = POOL.connection()
+            cursor = db.cursor()
+            if request.method == "POST":
+                print(form.data)
+                if type == "post":
+                    sql = "update article_page set html = '" + form.Filename.data + ".html', head = '" + form.Header.data \
+                          + "',draft = "+ ("1" if form.Opendegree.data == "d" else "0")
+                    sql += ", author = '" + form.Author.data + "', article_date ='" + form.Date.data + "' where html = '" + \
+                           filename + "' and ispage = 0"
+                    sql1 = "select markdown from article_page where html = '" + filename + "' and ispage = 0"
+                elif type == "page":
+                    sql = "update article_page set html = '" + form.Filename.data + ".html', head = '" + form.Header.data \
+                          + "',draft = "+ ("1" if form.Opendegree.data == "d" else "0")
+                    print(sql)
+                    sql += ", author = '" + form.Author.data + "', article_date ='" + form.Date.data + "' where html = '" + \
+                           filename + "' and ispage = 1"
+                    sql1 = "select markdown from article_page where html = '" + filename + "' and ispage = 1"
+                else:
+                    return redirect("/none")
+                try:
+                    cursor.execute(sql1)
+                    with open(app.config["MD_PATH"] + "\\" + cursor.fetchone()[0], 'w', encoding="utf-8") as file:
+                        file.write(form.Article.data)
+                    cursor.execute(sql)
+                    db.commit()
+                except:
+                    db.rollback()
+                if type == "post":
+                    return redirect("/admin/post/edit/" + form.Filename.data + ".html")
+                else:
+                    return redirect("/admin/page/edit/" + form.Filename.data + ".html")
+            else:
+                if type == "post":
+                    sql = "select html, head, unix_timestamp(article_date), draft, " \
+                          "author, markdown from article_page where html = '" + filename + "' and ispage = 0"
+                elif type == "page":
+                    sql = "select html, head, unix_timestamp(article_date), draft, " \
+                          "author, markdown from article_page where html = '" + filename + "' and ispage = 1"
+                else:
+                    return redirect("/none")
+                cursor.execute(sql)
+                print(sql)
+                temp = cursor.fetchone()
+                print(temp)
+                RE = "(.*).html"
+                fname = re.findall(RE, temp[0])[0]
+                form.Header.data = temp[1]
+                form.Filename.data = fname
+                form.Opendegree.data = "d" if temp[3] else "o"
+                form.Author.data = temp[4]
+                form.Date.data = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(temp[2]))
+                with open(app.config["MD_PATH"] + "\\" + temp[5], 'r', encoding="utf-8") as file:
+                    form.Article.data = file.read()
+                if type == "post":
+                    return render_template("article_edit.html", path=request.url, form=form,
+                                       sitename=self.__get.get_sitename(), siteip=request.host_url,
+                                       authors=self.__get.get_author()[0], default=self.__get.get_author()[1])
+                else:
+                    return render_template("page_edit.html", path=request.url, form=form,
+                                       sitename=self.__get.get_sitename(), siteip=request.host_url,
+                                       authors=self.__get.get_author()[0], default=self.__get.get_author()[1])
+        else:
+            return redirect("/admin")
+
+class aorpdelete_view(views.View):
+    def dispatch_request(self, type, filename):
+        if session.get('user'):
+            db = POOL.connection()
+            cursor = db.cursor()
+            sql0 = "select markdown from article_page where html = '" + filename + "' and ispage = 0 and username = '" + session["user"] + "'"
+            sql1 = "select markdown from article_page where html = '" + filename + "' and ispage = 1 and username = '" + session["user"] + "'"
+            print(sql0)
+            print(sql1)
+            if type == "post":
+                sql = "delete from article_page where html = '" + filename + "' and ispage = 0 and username = '" + session["user"] + "'"
+                try:
+                    cursor.execute(sql0)
+                    os.remove(app.config["MD_PATH"] + "\\" + cursor.fetchone()[0])
+                    cursor.execute(sql)
+                    db.commit()
+                except:
+                    db.rollback()
+                return redirect("/admin/post/list")
+            elif type == "page":
+                sql = "delete from article_page where html = '" + filename + "' and ispage = 1 and username = '" + session["user"] + "'"
+                try:
+                    cursor.execute(sql1)
+                    os.remove(app.config["MD_PATH"] + "\\" + cursor.fetchone()[0])
+                    cursor.execute(sql)
+                    db.commit()
+                except:
+                    db.rollback()
+                return redirect(("/admin/page/list"))
+            else:
+                return redirect("/none")
+        else:
+            return redirect("/admin")
 
 @app.route("/showlogo/<path:filename>", methods=["GET"])
 def show_pic(filename):
@@ -399,7 +578,8 @@ app.add_url_rule('/admin/intro', view_func=intro_view.as_view('introduction'), m
 app.add_url_rule('/admin/setting', view_func=setting_view.as_view('settings'), methods=["GET", "POST"])
 app.add_url_rule('/admin/<type>/list', view_func=aorplist_view.as_view('aorplist'), methods=["GET", "POST"])
 app.add_url_rule('/admin/<type>/create', view_func=aorpcreate_view.as_view('aorpcreate'), methods=["POST", "GET"])
-
+app.add_url_rule('/admin/<type>/delete/<filename>', view_func=aorpdelete_view.as_view('aorpdelete'), methods=["POST"])
+app.add_url_rule('/admin/<type>/edit/<filename>', view_func=aorpedit_view.as_view('aorpedit'), methods=["POST", "GET"])
 
 # @app.route('/post/<article_path>')
 # def article(article_path):

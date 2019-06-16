@@ -77,8 +77,8 @@ function click_trans_change(string)
 function selectbox(obj)
 {
     var select_ul = document.getElementById("options");
-    var select = document.getElementById("select_show");
-    select.innerText = obj.innerText; 
+    var select = document.getElementById("author");
+    select.value = obj.innerText;
     select_ul.style.borderBottom = "";
     select_ul.style.display = "none";
 }

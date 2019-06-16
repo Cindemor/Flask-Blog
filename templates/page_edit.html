@@ -21,17 +21,17 @@
                 </div>
                 <ul id="left_ul">
                     <li>
-                        <a href="../intro" id="choice_0">概述</a>
+                        <a href="../../intro" id="choice_0">概述</a>
                     </li>
                     <li>
                         <a href="#" id="choice_1" onclick="click_trans_change('article')">文章管理</a>
                     </li>
                     <ul id="change_1" style="height:auto; display:none; padding-left: 0px"">
                             <li>
-                                <a href="../post/list" id="hidden_a">文章列表</a>
+                                <a href="../../post/list" id="hidden_a">文章列表</a>
                             </li>
                             <li>
-                                <a href="../post/create" id="hidden_a">添加文章</a>
+                                <a href="../../post/create" id="hidden_a">添加文章</a>
                             </li>
                     </ul>
                     <li class="active">
@@ -39,10 +39,10 @@
                     </li>
                     <ul id="change_2" style="height:auto; padding-left: 0px;">
                             <li>
-                                <a href="../page/list" id="hidden_a">页面列表</a>
+                                <a href="../list" id="hidden_a" class="active">页面列表</a>
                             </li>
                             <li>
-                                <a href="../page/create" class="active" id="hidden_a">添加页面</a>
+                                <a href="../create" id="hidden_a">添加页面</a>
                             </li>
                     </ul>
 <!--                    <li>-->
@@ -57,18 +57,18 @@
 <!--                            </li>-->
 <!--                    </ul>-->
                     <li>
-                        <a href="../setting" id="choice_4">系统设置</a>
+                        <a href="../../setting" id="choice_4">系统设置</a>
                     </li>
                 </ul>
             </div>
             <div id="all_content">
                     <div style="background-color: #323232; height: 30px; border: 3px solid #393939">
-                        <a href= "../admin" id="content_menu" style="margin-left:30px;">首页</a>
+                        <a href= "../.." id="content_menu" style="margin-left:30px;">首页</a>
                         <font id="content_menu_font">/ 页面管理 /</font>
                         <a href= "" id="content_menu">添加页面</a>
                     </div>
                     <hr>
-                <form action="../page/create" method="post">
+                <form action="{{ path }}" method="post">
                     {{ form.csrf_token }}
                     <div id="article_create_content">
                         <div id="article_create_left">
