@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>{{ sitename }}-articlecreate</title>
+        <title>文章编辑 - {{ sitename }}</title>
         <meta charset="UTF-8">
+        <link rel="icon" href="{{ url_for('show_pic', filename=logoname) }}">
         <link href="{{ url_for('static', filename='css/main.css' )}}" rel="stylesheet">
         <link href="{{ url_for('static', filename='css/content.css' )}}" rel="stylesheet">
         <link href="{{ url_for('static', filename='css/left.css' )}}" rel="stylesheet">
@@ -66,7 +67,7 @@
                 <div style="background-color: #323232; height: 30px; border: 3px solid #393939">
                     <a href= "../../intro" id="content_menu" style="margin-left:30px;">首页</a>
                     <font id="content_menu_font">/ 文章管理 /</font>
-                    <a href= "" id="content_menu">添加文章</a>
+                    <a href= "" id="content_menu">编辑文章</a>
                 </div>
                 <hr>
                 <form action="{{ path }}" method="post">

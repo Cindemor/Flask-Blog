@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>        
-        <title>{{ form.get_sitename() }}-introduction</title>
+        <title>简介 - {{ form.get_sitename() }}</title>
         <meta charset="UTF-8">
+        <link rel="icon" href="{{ url_for('show_pic', filename=logoname) }}">
         <link href="{{ url_for('static', filename='css/main.css' )}}" rel="stylesheet">
         <link href="{{ url_for('static', filename='css/content.css' )}}" rel="stylesheet">
         <link href="{{ url_for('static', filename='css/left.css' )}}" rel="stylesheet">
@@ -82,13 +83,13 @@
                 <!--需要后端接口-->
                 <div id="intro_content1">
                     {% for article in form.get_articles() %}
-                        <p>{{ article['date'] }}:<a id="intro_content_a" href="../admin/edit/{{ article['href'] }}">&emsp;{{ article['title'] }}</a></p>
+                        <p>{{ article['date'] }}:<a id="intro_content_a" href="../admin/post/edit/{{ article['href'] }}">&emsp;{{ article['title'] }}</a></p>
                     {% endfor %}
                 </div>
                 <font id="intro_content_header3">最近添加的页面</font>
                 <div id="intro_content3">
                     {% for page in form.get_pages() %}
-                        <p>{{ page['date'] }}:<a id="intro_content_a" href="../admin/edit/{{ page['href'] }}">&emsp;{{ page['title'] }}</a></p>
+                        <p>{{ page['date'] }}:<a id="intro_content_a" href="../admin/page/edit/{{ page['href'] }}">&emsp;{{ page['title'] }}</a></p>
                     {% endfor %}
                 </div>
                 <font id="intro_content_header2">关于我们</font>

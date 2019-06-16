@@ -73,10 +73,12 @@ class index_view(views.View):
             post_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(j[2]))
             text = self.md2html(j[4])
             posts.append(dict({'title':j[0], 'href':'post/'+j[1], 'ad':j[3]+" 发布于 "+post_time, 'more':text}))
-        fuck = index_data(title, pages, github, posts, year)
+        cursor.execute("select logo from setting")
+        picname = cursor.fetchone()[0]
+        form = index_data(title, pages, github, posts, year, picname)
         cursor.close()
         db.close()
-        return render_template('index.html', data = fuck)
+        return render_template('index.html', data = form)
 
 class archives_view(views.View):
     def dispatch_request(self):
@@ -103,7 +105,6 @@ class archives_view(views.View):
             RE = "([0-9]+?)-([0-9]+)"
             RE_list = re.findall(RE, i[0])
             date1.append(RE_list[0][0] + "年" + RE_list[0][1] + "月")
-        print(date1)
         v = 0
         for j in range(len(date1)):
             l = dict()
@@ -115,10 +116,12 @@ class archives_view(views.View):
                 v += 1
             l["articles"] = temp
             posts.append(l)
-        fuck = index_data(title, pages, github, posts, year)
+        cursor.execute("select logo from setting")
+        picname = cursor.fetchone()[0]
+        form = index_data(title, pages, github, posts, year, picname)
         cursor.close()
         db.close()
-        return render_template('archives.html', data = fuck)
+        return render_template('archives.html', data = form)
 
 
 class aorp_view(views.View):
@@ -181,7 +184,6 @@ class aorp_view(views.View):
         else:
             next_html = "../"
             next_head = "没有下一个(回首页)"
-        print(next_head)
         if cursor.execute(sql1) > 0:
             html_head = cursor.fetchone()
             last_html = html_head[0]
@@ -195,14 +197,18 @@ class aorp_view(views.View):
         RE_list = re.findall(RE, atitle_post_date_author[2])
         author_date = "本文由作者 " + atitle_post_date_author[4] + " 发表于 " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(atitle_post_date_author[3]))
         date = RE_list[0][1] + '月' + RE_list[0][2] + ", " + RE_list[0][0]
-        fuck = aorp_data(title, pages, github, atitle, date, author_date, last_head, last_html, next_head, next_html, year, post)
+        cursor.execute("select logo from setting")
+        picname = cursor.fetchone()[0]
+        form = aorp_data(title, pages, github, atitle, date, author_date, last_head, last_html, next_head, next_html, year, post, picname)
         cursor.close()
         db.close()
-        return render_template('post.html', data = fuck)
+        return render_template('post.html', data = form)
 
 class login_view(views.View):
     def dispatch_request(self):
         form = LoginForm()
+        temp = setting_view()
+        sitename = temp.get_sitename()
         if request.method == "POST":
             if form.validate():
                 db = POOL.connection()
@@ -222,22 +228,22 @@ class login_view(views.View):
                         return response
                     else:
                         form.username.data = ""
-                        return render_template("login.html", form=form, msg="账号或密码错误！")
+                        return render_template("login.html", form=form, msg="账号或密码错误！", sitename=sitename)
                 else:
                     form.username.data = ""
-                    return render_template("login.html", form=form, msg="账号或密码错误！")
+                    return render_template("login.html", form=form, msg="账号或密码错误！", sitename=sitename)
                 cursor.close()
                 db.close()
             else:
-                return render_template("login.html", form=form)
+                return render_template("login.html", form=form, sitename=sitename)
         else:
             if session.get('user'):
                 return redirect("/admin/intro")
             else:
-                return render_template("login.html", form=form)
+                return render_template("login.html", form=form, sitename=sitename)
+
 
 class intro_view(views.View):
-
     def dispatch_request(self):
         if session.get('user'):
             db = POOL.connection()
@@ -273,28 +279,19 @@ class intro_view(views.View):
                 articles.append(dict({'title': i[1], 'href': i[0], 'date': i[2]}))
             for j in b:
                 pages.append(dict({'title': j[1], 'href': j[0], 'date': j[2]}))
+            logoname = setting_view().get_logoname(cursor)
             cursor.close()
             db.close()
             intro_form = IntroForm(sitename, post_num, page_num, articles, pages)
-            return render_template("introduction.html", form=intro_form)
-
+            return render_template("introduction.html", form=intro_form, logoname=logoname)
         else:
             return redirect("/admin")
-    def get_sitename(self):
-        db = POOL.connection()
-        sql = "select sitename from setting"
-        cursor = db.cursor()
-        cursor.execute(sql)
-        temp = cursor.fetchone()[0]
-        cursor.close()
-        db.close()
-        return temp
+
 
 class setting_view(views.View):
     def dispatch_request(self):
         if session.get('user'):
             form = SettingForm()
-            print(form.data)
             db = POOL.connection()
             cursor = db.cursor()
             if request.method == "POST":
@@ -327,13 +324,13 @@ class setting_view(views.View):
                         except:
                             db.rollback()
                         cursor.execute("select logo from setting")
-                        return render_template("settings.html", form=form, fname=cursor.fetchone()[0])
+                        return render_template("settings.html", form=form, fname=cursor.fetchone()[0], logoname=self.get_logoname(cursor))
                 else:
                     form_fname = self.search_database(cursor, form)
-                    return render_template("settings.html", form=form_fname[0], fname=form_fname[1])
+                    return render_template("settings.html", form=form_fname[0], fname=form_fname[1], logoname=self.get_logoname(cursor))
             else:
                 form_fname = self.search_database(cursor, form)
-                return render_template("settings.html", form=form_fname[0], fname=form_fname[1])
+                return render_template("settings.html", form=form_fname[0], fname=form_fname[1], logoname=self.get_logoname(cursor))
         else:
             return redirect("/admin")
 
@@ -348,14 +345,27 @@ class setting_view(views.View):
         form.Sitebeian0.data = result[5]
         form.Sitebeian1.data = result[6]
         return (form, fname)
+    def get_logoname(self, cursor):
+        cursor.execute("select logo from setting")
+        return cursor.fetchone()[0]
+    def get_sitename(self):
+        db = POOL.connection()
+        sql = "select sitename from setting"
+        cursor = db.cursor()
+        cursor.execute(sql)
+        temp = cursor.fetchone()[0]
+        cursor.close()
+        db.close()
+        return temp
 
 class aorplist_view(views.View):
     def __init__(self):
-        self.__get = aorpcreate_view()
+        self.__get = setting_view()
     def dispatch_request(self, type):
         if session.get('user'):
             db = POOL.connection()
             cursor = db.cursor()
+            logoname = setting_view().get_logoname(cursor)
             if type == "page":
                 sql = "select html, head, article_date, author, draft from article_page where ispage = 1 and author = 'spider' order by article_date desc"
                 cursor.execute(sql)
@@ -364,7 +374,7 @@ class aorplist_view(views.View):
                 for i in query_result:
                     form = aorpForm(i[1], "草稿" if i[4] else "已发布", i[2], i[3], i[0])
                     result.append(form)
-                return render_template("page_manager.html", contents = result, sitename = self.__get.get_sitename())
+                return render_template("page_manager.html", contents = result, sitename = self.__get.get_sitename(), logoname=logoname)
             elif type == "post":
                 sql = "select html, head, article_date, author, draft from article_page where ispage = 0 and author = 'spider' order by article_date desc"
                 cursor.execute(sql)
@@ -373,7 +383,7 @@ class aorplist_view(views.View):
                 for i in query_result:
                     form = aorpForm(i[1], "草稿" if i[4] else "已发布", i[2], i[3], i[0])
                     result.append(form)
-                return render_template("article_manager.html", contents = result, sitename = self.__get.get_sitename())
+                return render_template("article_manager.html", contents = result, sitename = self.__get.get_sitename(), logoname=logoname)
             else:
                 return redirect("/none")
         else:
@@ -384,10 +394,11 @@ class aorpcreate_view(views.View):
     def dispatch_request(self, type):
         if session.get('user'):
             form = aorpWriteForm()
+            db = POOL.connection()
+            cursor = db.cursor()
+            logoname = setting_view().get_logoname(cursor)
             if request.method == "POST": #post请求
                 author_default = self.get_author() #从admin_表中获取所有作者名
-                db = POOL.connection()
-                cursor = db.cursor()
                 filename = form.Filename.data
                 if type == "post":
                     cursor.execute("select html from article_page where ispage = 0")
@@ -395,14 +406,16 @@ class aorpcreate_view(views.View):
                         ispage = str(0)
                     else:
                         form.Filename.data = ""
-                        return render_template("article_create.html", form=form, siteip=request.host_url, sitename=self.get_sitename(), msg="不可出现同名文件", author=author_default[0], default=author_default[1])
+                        return render_template("article_create.html", form=form, siteip=request.host_url, sitename=setting_view().get_sitename(),
+                                               msg="不可出现同名文件", author=author_default[0], default=author_default[1], logoname=logoname)
                 elif type == "page":
                     cursor.execute("select html from article_page where ispage = 1")
                     if (filename + ".html",) not in cursor.fetchall():
                         ispage = str(1)
                     else:
                         form.Filename.data = ""
-                        return render_template("page_create.html", form=form, siteip=request.host_url, sitename=self.get_sitename(), msg="不可出现同名文件", author=author_default[0], default=author_default[1])
+                        return render_template("page_create.html", form=form, siteip=request.host_url, sitename=setting_view().get_sitename(),
+                                               msg="不可出现同名文件", author=author_default[0], default=author_default[1], logoname=logoname)
                 else:
                     cursor.close()
                     db.close()
@@ -427,30 +440,23 @@ class aorpcreate_view(views.View):
                     db.commit()
                 except:
                     db.rollback()
-                return redirect("../edit/" + filename + ".html")
+                return redirect("../../admin/" + type + "/edit/" + filename + ".html")
             else:
                 author_default = self.get_author()
                 if type == "post":
                     form.Opendegree.data = "o"
                     return render_template("article_create.html", form=form,
-                                           siteip=request.host_url, sitename=self.get_sitename(), authors=author_default[0], default=author_default[1])
+                                           siteip=request.host_url, sitename=setting_view().get_sitename(), authors=author_default[0],
+                                           default=author_default[1], logoname=logoname)
                 elif type == "page":
                     form.Opendegree.data = "o"
                     return render_template("page_create.html", form=form,
-                                           siteip=request.host_url, sitename=self.get_sitename(), authors=author_default[0], default=author_default[1])
+                                           siteip=request.host_url, sitename=setting_view().get_sitename(), authors=author_default[0],
+                                           default=author_default[1], logoname=logoname)
                 else:
                     return redirect("/none")
         else:
             return redirect("/admin")
-    def get_sitename(self):
-        db = POOL.connection()
-        sql = "select sitename from setting"
-        cursor = db.cursor()
-        cursor.execute(sql)
-        temp = cursor.fetchone()[0]
-        cursor.close()
-        db.close()
-        return temp
     def get_author(self):
         db = POOL.connection()
         sql = "select name from admin_"
@@ -469,8 +475,8 @@ class aorpedit_view(views.View):
             form = aorpWriteForm()
             db = POOL.connection()
             cursor = db.cursor()
+            logoname = setting_view().get_logoname(cursor)
             if request.method == "POST":
-                print(form.data)
                 if type == "post":
                     sql = "update article_page set html = '" + form.Filename.data + ".html', head = '" + form.Header.data \
                           + "',draft = "+ ("1" if form.Opendegree.data == "d" else "0")
@@ -480,7 +486,6 @@ class aorpedit_view(views.View):
                 elif type == "page":
                     sql = "update article_page set html = '" + form.Filename.data + ".html', head = '" + form.Header.data \
                           + "',draft = "+ ("1" if form.Opendegree.data == "d" else "0")
-                    print(sql)
                     sql += ", author = '" + form.Author.data + "', article_date ='" + form.Date.data + "' where html = '" + \
                            filename + "' and ispage = 1"
                     sql1 = "select markdown from article_page where html = '" + filename + "' and ispage = 1"
@@ -508,9 +513,7 @@ class aorpedit_view(views.View):
                 else:
                     return redirect("/none")
                 cursor.execute(sql)
-                print(sql)
                 temp = cursor.fetchone()
-                print(temp)
                 RE = "(.*).html"
                 fname = re.findall(RE, temp[0])[0]
                 form.Header.data = temp[1]
@@ -522,12 +525,12 @@ class aorpedit_view(views.View):
                     form.Article.data = file.read()
                 if type == "post":
                     return render_template("article_edit.html", path=request.url, form=form,
-                                       sitename=self.__get.get_sitename(), siteip=request.host_url,
-                                       authors=self.__get.get_author()[0], default=self.__get.get_author()[1])
+                                       sitename=setting_view().get_sitename(), siteip=request.host_url,
+                                       authors=self.__get.get_author()[0], default=self.__get.get_author()[1], logoname=logoname)
                 else:
                     return render_template("page_edit.html", path=request.url, form=form,
-                                       sitename=self.__get.get_sitename(), siteip=request.host_url,
-                                       authors=self.__get.get_author()[0], default=self.__get.get_author()[1])
+                                       sitename=setting_view().get_sitename(), siteip=request.host_url,
+                                       authors=self.__get.get_author()[0], default=self.__get.get_author()[1], logoname=logoname)
         else:
             return redirect("/admin")
 
@@ -538,8 +541,6 @@ class aorpdelete_view(views.View):
             cursor = db.cursor()
             sql0 = "select markdown from article_page where html = '" + filename + "' and ispage = 0 and username = '" + session["user"] + "'"
             sql1 = "select markdown from article_page where html = '" + filename + "' and ispage = 1 and username = '" + session["user"] + "'"
-            print(sql0)
-            print(sql1)
             if type == "post":
                 sql = "delete from article_page where html = '" + filename + "' and ispage = 0 and username = '" + session["user"] + "'"
                 try:

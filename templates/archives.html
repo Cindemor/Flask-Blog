@@ -4,7 +4,7 @@
         <title>
             归档 - {{ data.get_attr(0) }}
         </title>
-        <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+        <link rel="icon" href="{{ url_for('show_pic', filename=data.get_attr(5)) }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/archives.css') }}" type="text/css" media="all">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta charset="utf-8">
@@ -19,7 +19,7 @@
         <div id="Face">
             <div id="ImgLayer" style="background-image: url({{ url_for('static', filename='img/background1.png') }});">
                 <div id="HeadInfo">
-                    <img id="Avatar" src="{{ url_for('static', filename='img/avatar.jpg') }}">
+                    <img id="Avatar" src="{{ url_for('show_pic', filename=data.get_attr(5)) }}">
                     <h1 id="Name">{{ data.get_attr(0) }}</h1>
                 </div>
             </div>
