@@ -367,7 +367,7 @@ class aorplist_view(views.View):
             cursor = db.cursor()
             logoname = setting_view().get_logoname(cursor)
             if type == "page":
-                sql = "select html, head, article_date, author, draft from article_page where ispage = 1 and author = 'spider' order by article_date desc"
+                sql = "select html, head, article_date, author, draft from article_page where ispage = 1 order by article_date desc" #根用户的权限
                 cursor.execute(sql)
                 query_result = cursor.fetchall()
                 result = list()
@@ -376,7 +376,7 @@ class aorplist_view(views.View):
                     result.append(form)
                 return render_template("page_manager.html", contents = result, sitename = self.__get.get_sitename(), logoname=logoname)
             elif type == "post":
-                sql = "select html, head, article_date, author, draft from article_page where ispage = 0 and author = 'spider' order by article_date desc"
+                sql = "select html, head, article_date, author, draft from article_page where ispage = 0 order by article_date desc" #根用户的权限
                 cursor.execute(sql)
                 query_result = cursor.fetchall()
                 result = list()
