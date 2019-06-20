@@ -267,11 +267,11 @@ class intro_view(views.View):
                 return render_template("introduction.html", form=intro_form)
             cursor.execute(
                 "select html, head, article_date from article_page where ispage = 0 and draft = 0 and open_degree = 1 "
-                "order by unix_timestamp(article_date) desc limit 5")
+                "order by unix_timestamp(article_date) desc limit 3")
             a = cursor.fetchall()
             cursor.execute(
                 "select html, head, article_date from article_page where ispage = 1 and draft = 0 and open_degree = 1 "
-                "order by unix_timestamp(article_date) desc limit 5")
+                "order by unix_timestamp(article_date) desc limit 3")
             b = cursor.fetchall()
             articles = list()
             pages = list()
