@@ -121,11 +121,14 @@
                         {% endfor %}
                         </tbody>
                     </table>
-                </div>  
+                    <a href="javascript:" id="lastpage">上一页</a>
+                    <a href="javascript:" id="nextpage">下一页</a>
+                </div>
             </div>
         </div>
     <script type="text/javascript" src="{{ url_for('static', filename='js/click_trans.js')}}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/to_page.js' )}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.1.min.js' )}}"></script>
     <script type="text/javascript">
         function infor()
         {
@@ -135,6 +138,35 @@
             else
                 return false;
         }
-    </script>
+        var now_post = 0
+        $(function() {
+        $("#lastpage").click(function() {
+            if(now_post >= 7)
+                now_post -= 7;
+            $.ajax({
+                url: "{{ url_for('load_content') }}",
+                type: 'post',
+                data: { "num": now_post, "type":"post" },
+                success: function(data) {
+                $('#tag_list_body').html(data);
+                }
+            })
+        })
+        $("#nextpage").click(function() {
+            now_post += 7
+            $.ajax({
+                url: "{{ url_for('load_content') }}",
+                type: 'post',
+                data: { "num": now_post, "type":"post" },
+                success: function(data) {
+                    $('#tag_list_body').html(data);
+                    if(data.length == 24){
+                        $("#lastpage").trigger("click")
+                        }
+                }
+            })
+            })
+        })
+</script>
 </body>
 </html>

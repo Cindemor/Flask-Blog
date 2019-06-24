@@ -1,6 +1,7 @@
 var initial = document.getElementsByClassName("search_choose");
 var num = document.getElementsByTagName("th").length;
 var initial_list = new Array();
+var form_list = new Array();
 var j = 0;
 for(var l = 0; l < initial.length; l++)
 {
@@ -11,11 +12,12 @@ for(var l = 0; l < initial.length; l++)
             initial_list[j++] = initial_siblings[i].innerText;
         else{
             initial_list[j++] = initial_siblings[i].getElementsByTagName("input")[0].value;
+            form_list[0] = initial_siblings[i].getElementsByTagName("form")[0].action;
             initial_list[j++] = initial_siblings[i].getElementsByTagName("input")[1].value;
+            form_list[1] = initial_siblings[i].getElementsByTagName("form")[1].action;
         }
     }
 }
-
 function calendar(y, m, d)
 {
     var myDate = new Date();
@@ -52,8 +54,12 @@ function search()
                 else
                 {
                     show_list += "<td>"
+                    show_list += "<form action=\"" + form_list[0] + "\" method=\"get\">"
                     show_list += "<input type=\"submit\" class=\"edit\" value=\"" + initial_list[i+m] + "\" />"
+                    show_list += "</form>"
+                    show_list += "<form action=\"" + form_list[1] + "\" method=\"post\" onsubmit=\"return infor()\">"
                     show_list += "<input type=\"submit\" class=\"delete\" value=\"" + initial_list[i+m+1] + "\" />"
+                    show_list += "</form>"
                 }
             }
             show_list += "</td>\

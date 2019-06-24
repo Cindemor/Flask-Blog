@@ -367,7 +367,11 @@ class aorplist_view(views.View):
             cursor = db.cursor()
             logoname = setting_view().get_logoname(cursor)
             if type == "page":
-                sql = "select html, head, article_date, author, draft from article_page where ispage = 1 order by article_date desc" #根用户的权限
+                if "now_page" in session:
+                    string = session["now_page"]
+                else:
+                    string = 0
+                sql = "select html, head, article_date, author, draft from article_page where ispage = 1 order by article_date desc limit " + str(string) + ", 7" #根用户的权限
                 cursor.execute(sql)
                 query_result = cursor.fetchall()
                 result = list()
@@ -376,7 +380,11 @@ class aorplist_view(views.View):
                     result.append(form)
                 return render_template("page_manager.html", contents = result, sitename = self.__get.get_sitename(), logoname=logoname)
             elif type == "post":
-                sql = "select html, head, article_date, author, draft from article_page where ispage = 0 order by article_date desc" #根用户的权限
+                if "now_post" in session:
+                    string = session["now_post"]
+                else:
+                    string = 0
+                sql = "select html, head, article_date, author, draft from article_page where ispage = 0 order by article_date desc limit " + str(string) + ", 7" #根用户的权限
                 cursor.execute(sql)
                 query_result = cursor.fetchall()
                 result = list()
@@ -423,9 +431,9 @@ class aorpcreate_view(views.View):
                 header = form.Header.data
                 date = form.Date.data
                 author = form.Author.data
-                md = form.Article.data
+                md = form.Article.data.encode('utf-8')
                 md_name = str(time.time()) + ".md"
-                with open(app.config["MD_PATH"] + "\\" + md_name, "w", encoding="utf-8") as file:
+                with open(app.config["MD_PATH"] + "\\" + md_name, "wb") as file:
                     file.write(md)
                 if form.Opendegree.data == "o":
                     draft = str(0)
@@ -493,8 +501,8 @@ class aorpedit_view(views.View):
                     return redirect("/none")
                 try:
                     cursor.execute(sql1)
-                    with open(app.config["MD_PATH"] + "\\" + cursor.fetchone()[0], 'w', encoding="utf-8") as file:
-                        file.write(form.Article.data)
+                    with open(app.config["MD_PATH"] + "\\" + cursor.fetchone()[0], 'wb') as file:
+                        file.write(form.Article.data.encode('utf-8')) #消除换行叠加问题
                     cursor.execute(sql)
                     db.commit()
                 except:
@@ -570,6 +578,26 @@ class aorpdelete_view(views.View):
 def show_pic(filename):
     return send_from_directory(app.config["UPLOAD_PATH"], filename)
 
+@app.route("/add", methods=["POST"])
+def load_content():
+    db = POOL.connection()
+    cursor = db.cursor()
+    if request.form["type"] == "post":
+        session["now_post"] = request.form["num"]
+        sql = "select html, head, article_date, author, draft from article_page where ispage = 0 order by article_date desc limit " + request.form["num"] + ", 7"
+    elif request.form["type"] == "page":
+        session["now_page"] = request.form["num"]
+        sql = "select html, head, article_date, author, draft from article_page where ispage = 1 order by article_date desc limit " + request.form["num"] + ", 7"
+    else:
+        return redirect("/404")
+    cursor.execute(sql)
+    query_result = cursor.fetchall()
+    result = list()
+    for i in query_result:
+        form = aorpForm(i[1], "草稿" if i[4] else "已发布", i[2], i[3], i[0])
+        result.append(form)
+    return render_template("manager_add.html", contents=result)
+
 app.add_url_rule('/', view_func=index_view.as_view('index'), methods=["GET"])
 app.add_url_rule('/archives', view_func=archives_view.as_view('archives'), methods=["GET"])
 app.add_url_rule('/post/<aname>', view_func=aorp_view.as_view('articles'), methods=["GET"])
@@ -582,9 +610,5 @@ app.add_url_rule('/admin/<type>/create', view_func=aorpcreate_view.as_view('aorp
 app.add_url_rule('/admin/<type>/delete/<filename>', view_func=aorpdelete_view.as_view('aorpdelete'), methods=["POST"])
 app.add_url_rule('/admin/<type>/edit/<filename>', view_func=aorpedit_view.as_view('aorpedit'), methods=["POST", "GET"])
 
-# @app.route('/post/<article_path>')
-# def article(article_path):
-#     post = md2html()
-#     return render_template('post.html', article = post)
 if __name__ == '__main__':
     app.run(debug = True, port = '80')

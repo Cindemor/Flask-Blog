@@ -313,6 +313,7 @@
     width: calc(100% - 30px);
     height: 470px;
     border: 0;
+    line-height: 16px;
 }
 #article_create_right input.submit {
     width: 80px;
@@ -339,4 +340,18 @@
     width: 15px;
     height: 15px;
     cursor: pointer;
+}
+
+#lastpage:hover,
+#nextpage:hover {
+    color: black;
+}
+#lastpage {
+    position:relative;
+    top: 20px;
+}
+#nextpage {
+    position:relative;
+    top: 20px;
+    left: calc(80% - 60px);
 }
