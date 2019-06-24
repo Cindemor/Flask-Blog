@@ -27,8 +27,8 @@ function click_trans_change(string)
         document.getElementById("choice_1").className = "active";
         document.getElementById("choice_2").parentNode.className = "no_active";
         document.getElementById("choice_2").className = "no_active";
-//        document.getElementById("choice_3").parentNode.className = "no_active";
-//        document.getElementById("choice_3").className = "no_active";
+        document.getElementById("choice_3").parentNode.className = "no_active";
+        document.getElementById("choice_3").className = "no_active";
         document.getElementById("choice_0").parentNode.className = "no_active";
         document.getElementById("choice_0").className = "no_active";
         document.getElementById("choice_4").parentNode.className = "no_active";
@@ -36,42 +36,42 @@ function click_trans_change(string)
 
         document.getElementById("change_1").style.display = "";
         document.getElementById("change_2").style.display = "none";
-//        document.getElementById("change_3").style.display = "none";
+        document.getElementById("change_3").style.display = "none";
     }
-    else
+    else if(string == "page")
     {
         document.getElementById("choice_2").parentNode.className = "active";
         document.getElementById("choice_2").className = "active";
         document.getElementById("choice_1").parentNode.className = "no_active";
         document.getElementById("choice_1").className = "no_active";
-//        document.getElementById("choice_3").parentNode.className = "no_active";
-//        document.getElementById("choice_3").className = "no_active";
+        document.getElementById("choice_3").parentNode.className = "no_active";
+        document.getElementById("choice_3").className = "no_active";
         document.getElementById("choice_0").parentNode.className = "no_active";
         document.getElementById("choice_0").className = "no_active";
         document.getElementById("choice_4").parentNode.className = "no_active";
         document.getElementById("choice_4").className = "no_active";
 
         document.getElementById("change_2").style.display = "";
-//        document.getElementById("change_3").style.display = "none";
+        document.getElementById("change_3").style.display = "none";
         document.getElementById("change_1").style.display = "none";
     }
-//    else
-//    {
-//        document.getElementById("choice_3").parentNode.className = "active";
-//        document.getElementById("choice_3").className = "active";
-//        document.getElementById("choice_1").parentNode.className = "no_active";
-//        document.getElementById("choice_1").className = "no_active";
-//        document.getElementById("choice_2").parentNode.className = "no_active";
-//        document.getElementById("choice_2").className = "no_active";
-//        document.getElementById("choice_0").parentNode.className = "no_active";
-//        document.getElementById("choice_0").className = "no_active";
-//        document.getElementById("choice_4").parentNode.className = "no_active";
-//        document.getElementById("choice_4").className = "no_active";
-//
-//        document.getElementById("change_3").style.display = "";
-//        document.getElementById("change_2").style.display = "none";
-//        document.getElementById("change_1").style.display = "none";
-//    }
+    else
+    {
+        document.getElementById("choice_3").parentNode.className = "active";
+        document.getElementById("choice_3").className = "active";
+        document.getElementById("choice_1").parentNode.className = "no_active";
+        document.getElementById("choice_1").className = "no_active";
+        document.getElementById("choice_2").parentNode.className = "no_active";
+        document.getElementById("choice_2").className = "no_active";
+        document.getElementById("choice_0").parentNode.className = "no_active";
+        document.getElementById("choice_0").className = "no_active";
+        document.getElementById("choice_4").parentNode.className = "no_active";
+        document.getElementById("choice_4").className = "no_active";
+
+        document.getElementById("change_3").style.display = "";
+        document.getElementById("change_2").style.display = "none";
+        document.getElementById("change_1").style.display = "none";
+    }
 }
 
 function selectbox(obj)

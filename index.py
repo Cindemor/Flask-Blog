@@ -279,7 +279,7 @@ class intro_view(views.View):
                 articles.append(dict({'title': i[1], 'href': i[0], 'date': i[2]}))
             for j in b:
                 pages.append(dict({'title': j[1], 'href': j[0], 'date': j[2]}))
-            logoname = setting_view().get_logoname(cursor)
+            logoname = setting_view().get_logoname()
             cursor.close()
             db.close()
             intro_form = IntroForm(sitename, post_num, page_num, articles, pages)
@@ -324,13 +324,13 @@ class setting_view(views.View):
                         except:
                             db.rollback()
                         cursor.execute("select logo from setting")
-                        return render_template("settings.html", form=form, fname=cursor.fetchone()[0], logoname=self.get_logoname(cursor))
+                        return render_template("settings.html", form=form, fname=cursor.fetchone()[0], logoname=self.get_logoname())
                 else:
                     form_fname = self.search_database(cursor, form)
-                    return render_template("settings.html", form=form_fname[0], fname=form_fname[1], logoname=self.get_logoname(cursor))
+                    return render_template("settings.html", form=form_fname[0], fname=form_fname[1], logoname=self.get_logoname())
             else:
                 form_fname = self.search_database(cursor, form)
-                return render_template("settings.html", form=form_fname[0], fname=form_fname[1], logoname=self.get_logoname(cursor))
+                return render_template("settings.html", form=form_fname[0], fname=form_fname[1], logoname=self.get_logoname())
         else:
             return redirect("/admin")
 
@@ -345,7 +345,8 @@ class setting_view(views.View):
         form.Sitebeian0.data = result[5]
         form.Sitebeian1.data = result[6]
         return (form, fname)
-    def get_logoname(self, cursor):
+    def get_logoname(self):
+        cursor = POOL.connection().cursor()
         cursor.execute("select logo from setting")
         return cursor.fetchone()[0]
     def get_sitename(self):
@@ -365,7 +366,7 @@ class aorplist_view(views.View):
         if session.get('user'):
             db = POOL.connection()
             cursor = db.cursor()
-            logoname = setting_view().get_logoname(cursor)
+            logoname = setting_view().get_logoname()
             if type == "page":
                 if "now_page" in session:
                     string = session["now_page"]
@@ -404,7 +405,7 @@ class aorpcreate_view(views.View):
             form = aorpWriteForm()
             db = POOL.connection()
             cursor = db.cursor()
-            logoname = setting_view().get_logoname(cursor)
+            logoname = setting_view().get_logoname()
             if request.method == "POST": #post请求
                 author_default = self.get_author() #从admin_表中获取所有作者名
                 filename = form.Filename.data
@@ -483,7 +484,7 @@ class aorpedit_view(views.View):
             form = aorpWriteForm()
             db = POOL.connection()
             cursor = db.cursor()
-            logoname = setting_view().get_logoname(cursor)
+            logoname = setting_view().get_logoname()
             if request.method == "POST":
                 if type == "post":
                     sql = "update article_page set html = '" + form.Filename.data + ".html', head = '" + form.Header.data \
@@ -598,6 +599,18 @@ def load_content():
         result.append(form)
     return render_template("manager_add.html", contents=result)
 
+class tagcreate_view(views.View):
+    def __init__(self):
+        self.get = setting_view()
+    def dispatch_request(self):
+        return render_template("tag_create.html", sitename = self.get.get_sitename(), logoname = self.get.get_logoname())
+
+class taglist_view(views.View):
+    def __init__(self):
+        self.get = setting_view()
+    def dispatch_request(self):
+        return render_template("tag_manager.html", sitename = self.get.get_sitename(), logoname = self.get.get_logoname())
+
 app.add_url_rule('/', view_func=index_view.as_view('index'), methods=["GET"])
 app.add_url_rule('/archives', view_func=archives_view.as_view('archives'), methods=["GET"])
 app.add_url_rule('/post/<aname>', view_func=aorp_view.as_view('articles'), methods=["GET"])
@@ -609,6 +622,8 @@ app.add_url_rule('/admin/<type>/list', view_func=aorplist_view.as_view('aorplist
 app.add_url_rule('/admin/<type>/create', view_func=aorpcreate_view.as_view('aorpcreate'), methods=["POST", "GET"])
 app.add_url_rule('/admin/<type>/delete/<filename>', view_func=aorpdelete_view.as_view('aorpdelete'), methods=["POST"])
 app.add_url_rule('/admin/<type>/edit/<filename>', view_func=aorpedit_view.as_view('aorpedit'), methods=["POST", "GET"])
+app.add_url_rule('/admin/tag/create', view_func=tagcreate_view.as_view('tagcreate'), methods=["POST", "GET"])
+app.add_url_rule('/admin/tag/list', view_func=taglist_view.as_view('taglist'), methods=["POST", "GET"])
 
 if __name__ == '__main__':
     app.run(debug = True, port = '80')
