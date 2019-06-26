@@ -74,10 +74,16 @@ function click_trans_change(string)
     }
 }
 
-function selectbox(obj)
+function selectbox(obj, string)
 {
-    var select_ul = document.getElementById("options");
-    var select = document.getElementById("author");
+    if(string == "t"){
+        var select_ul = document.getElementById("t_options");
+        var select = document.getElementById("select");
+        }
+    else if(string == "a"){
+        var select_ul = document.getElementById("a_options");
+        var select = document.getElementById("author");
+    }
     select.value = obj.innerText;
     select_ul.style.borderBottom = "";
     select_ul.style.display = "none";

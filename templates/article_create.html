@@ -142,23 +142,22 @@
                             <ul class="date">
                             </ul>
                         </div>
-<!--                        <p>标签</p>-->
-<!--                        <div id="select">-->
-<!--                            <span id="select_show" ></span>-->
-<!--                            <span id="select_expand">▼</span>-->
-<!--                        </div>-->
-<!--                        <ul class="options" id="options" style="height: auto; display: none">-->
-<!--                            <li class="option"  onclick="selectbox(this)" style="display: block">样例1</li>-->
-<!--                            <li class="option"  onclick="selectbox(this)" style="display: block">样例2</li>-->
-<!--                            <li class="option"  onclick="selectbox(this)" style="display: block">样例3</li>-->
-<!--                        </ul>-->
+                        <p>标签</p>
+                        <input id="select" readonly>
+                            <span id="select_show" ></span>
+                            <span id="select_expand">▼</span>
+                        <ul class="t_options" id="t_options" style="height: auto; display: none">
+                            <li class="option"  onclick="selectbox(this, 't')" style="display: block">样例1</li>
+                            <li class="option"  onclick="selectbox(this, 't')" style="display: block">样例2</li>
+                            <li class="option"  onclick="selectbox(this, 't')" style="display: block">样例3</li>
+                        </ul>
                         <p>公开度</p>
                                 {{ form.Opendegree }}
                         <p>作者</p>
                                 {{ form.Author(class="text", id="author", readonly="", value=default) }}
-                            <ul class="options" id="options" style="height: auto; display: none">
+                            <ul class="a_options" id="a_options" style="height: auto; display: none">
                                 {% for author in authors %}
-                                    <li class="option"  onclick="selectbox(this)" style="display: block">{{ author[0] }}</li>
+                                    <li class="option"  onclick="selectbox(this, 'a')" style="display: block">{{ author[0] }}</li>
                                 {% endfor %}
                                 {% for msg in form.Author.errors %}
                                 <p style="color: red">{{ msg }}</p>
@@ -181,10 +180,15 @@
         $(document).ready(function()
         {
         $("#author").click(function(){
-        $(".options").slideToggle("1500");
+        $("#a_options").slideToggle("1500");
+            });
+        $("#select_expand").click(function() {
+        $("#t_options").slideToggle("1500");
+            });
+        $("#select").click(function() {
+        $("#t_options").slideToggle("1500");
             });
         });
-
         $(function(){
             var Now = 0;
             function run(n) {

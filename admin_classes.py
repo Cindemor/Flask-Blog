@@ -65,3 +65,8 @@ class aorpWriteForm(FlaskForm):
     Opendegree = RadioField("choices", choices=[("o", "开放"), ("d", "草稿")])
     Submit=SubmitField("submit")
     Author = StringField("author", validators=[DataRequired(message="该字段不可为空")])
+
+class TagForm(FlaskForm):
+    Name = StringField("name", validators=[DataRequired(message="该字段不可为空")])
+    Shortname = StringField("shortname")
+    Submit=SubmitField("submit")

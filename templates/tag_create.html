@@ -62,21 +62,34 @@
             </div>
             <div id="all_content">
                 <div style="background-color: #323232; height: 30px; border: 3px solid #393939">
-                    <a href= "index.html#" id="content_menu" style="margin-left:30px;">首页</a>
+                    <a href= "../../admin" id="content_menu" style="margin-left:30px;">首页</a>
                     <font id="content_menu_font">/ 标签管理 /</font>
                     <a href= "" id="content_menu">添加标签</a>
                 </div>
                 <hr>
-                <div id="tag_content">
-                    <p style="font-weight: bold;"><label style="color: red; font-size: 18px">*&nbsp;</label>标签名称：</p>
-                    <input type="text" class="text" />
-                    <p style="font-weight: bold;">缩略名</p>
-                    <input type="text" class="text" />
-                    <p><input type="submit" class="submit" value="提交" onclick="funny()"/></p>
-                </div>
+                <form action="../tag/create" method="post">
+                    {{ form.csrf_token }}
+                    <div id="tag_content">
+                        <p style="font-weight: bold;"><label style="color: red; font-size: 18px">*&nbsp;</label>标签名称：</p>
+                        {{ form.Name(class="text") }}
+                        <p style="font-weight: bold;">缩略名</p>
+                        {{ form.Shortname(class="text") }}
+                        <p>{{ form.Submit(class="submit", value="提交") }}</p>
+                    </div>
+                </form>
+                <input id="msg" value="{{ message }}" hidden>
             </div>
         </div>
     <script type="text/javascript" src="{{ url_for('static', filename='js/click_trans.js')}}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/to_page.js' )}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.1.min.js')}}"></script>
+    <script type='text/javascript'>
+    $(document).ready(function() {
+        if($("#msg").val() != "")
+        {
+            alert($("#msg").val())
+        }
+        })
+    </script>
 </body>
 </html>

@@ -118,37 +118,44 @@
     border:1px solid #999;
     background-color: white;
     padding-left:10px;
+    padding-top:1px;
+    padding-bottom:1px;
 }
-#article_create_right #select #select_expand
+#article_create_right #select_expand
 {
     left: 358px;
     position: absolute;
     border-left: 1px solid #666;
     border-radius: 1px;
     font-size: 17px;
-    height: 22px;
+    height: 25px;
+    top:157px;
 }
-#article_create_right #select #select_expand:hover
+#article_create_right #select_expand:hover
 {
     color: #1890ff;
     background: #999;
     cursor: pointer;
     transition: 0.3s;
 }
-#article_create_right .options {
+#article_create_right .t_options,
+#article_create_right .a_options{
     width: 365px;
     margin: 0px;
     border: 1px solid #666;
     line-height: 25px;
     padding-left: 10px;
 }
-#article_create_right .options .option {
+#article_create_right .t_options .option,
+#article_create_right .a_options .option{
     margin-bottom: 5px;
     color: #666;
     list-style: none;
     cursor: pointer;
+    font-size: 13px;
 }
-#article_create_right .options .option:hover{
+#article_create_right .t_options .option:hover,
+#article_create_right .a_options .option:hover{
     color:#1890ff;
 }
 
