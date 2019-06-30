@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>编辑标签 - {{ sitename }}</title>
+        <meta charset="UTF-8">
+        <link rel="icon" href="{{ url_for('show_pic', filename=logoname) }}">
+        <link href="{{ url_for('static', filename='css/main.css' )}}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/content.css' )}}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/left.css' )}}" rel="stylesheet">
+    </head>
+    <body>
+        <div id="all">
+            <div id="all_left">
+                <div id="left_logo">
+                    <h1 id="left_head">
+                        <a href="../../..">
+                            {{ sitename }}
+                        </a>
+                    </h1>
+                </div>
+                <ul id="left_ul">
+                    <li>
+                        <a href="../../intro" id="choice_0">概述</a>
+                    </li>
+                    <li>
+                        <a href="#" id="choice_1" onclick="click_trans_change('article')">文章管理</a>
+                    </li>
+                    <ul id="change_1" style="height:auto; display: none; padding-left: 0px;"">
+                            <li>
+                                <a href="../../post/list" id="hidden_a">文章列表</a>
+                            </li>
+                            <li>
+                                <a href="../../post/create" id="hidden_a">添加文章</a>
+                            </li>
+                    </ul>
+                    <li>
+                        <a href="#" id="choice_2" onclick="click_trans_change('page')">页面管理</a>
+                    </li>
+                    <ul id="change_2" style="height:auto; display: none; padding-left: 0px;">
+                            <li>
+                                <a href="../../page/list" id="hidden_a">页面列表</a>
+                            </li>
+                            <li>
+                                <a href="../../page/create" id="hidden_a">添加页面</a>
+                            </li>
+                    </ul>
+                    <li class="active">
+                        <a href="#" id="choice_3" onclick="click_trans_change('tag')" class="active">标签管理</a>
+                    </li>
+                    <ul id="change_3" style="height:auto; padding-left: 0px;">
+                            <li>
+                                <a href="../list" id="hidden_a">标签列表</a>
+                            </li>
+                            <li>
+                                <a href="../create" class="active" id="hidden_a">添加标签</a>
+                            </li>
+                    </ul>
+                    <li>
+                        <a href="../../setting" id="choice_4">系统设置</a>
+                    </li>
+                </ul>
+            </div>
+            <div id="all_content">
+                <div style="background-color: #323232; height: 30px; border: 3px solid #393939">
+                    <a href= "../../intro" id="content_menu" style="margin-left:30px;">首页</a>
+                    <font id="content_menu_font">/ 标签管理 /</font>
+                    <a href= "" id="content_menu">编辑标签</a>
+                </div>
+                <hr>
+                <form action= "{{ path }}" method="post">
+                    {{ form.csrf_token }}
+                    <div id="tag_content">
+                        <p style="font-weight: bold;"><label style="color: red; font-size: 18px">*&nbsp;</label>标签名称：</p>
+                        {{ form.Name(class="text") }}
+                        <p style="font-weight: bold;">缩略名</p>
+                        {{ form.Shortname(class="text") }}
+                        <p>{{ form.Submit(class="submit", value="提交") }}</p>
+                    </div>
+                </form>
+                <input id="msg" value="{{ message }}" hidden>
+            </div>
+        </div>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/click_trans.js')}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/to_page.js' )}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.1.min.js')}}"></script>
+    <script type='text/javascript'>
+    $(document).ready(function() {
+        if($("#msg").val() != "")
+        {
+            alert($("#msg").val())
+        }
+        })
+    </script>
+</body>
+</html>

@@ -45,17 +45,17 @@
                                 {{ form.username(class="form-control", placeholder="用户名") }}
                             </div>
                             {% for error in form.username.errors %}
-                                    <p>{{ error }}</p>
-                                {% endfor %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
                             <div class="input-group form-group-no-border input-lg">
                                 <span class="input-group-addon">
                                     <i class="now-ui-icons text_caps-small"></i>
                                 </span>
                                 {{ form.password(placeholder="密码", class="form-control") }}
                             </div>
-                             {% for error in form.password.errors %}
-                                    <p style="margin-bottom:1rem; color:red;">{{ error }}</p>
-                                {% endfor %}
+                            {% for error in form.password.errors %}
+                                <p style="margin-bottom:1rem; color:red;">{{ error }}</p>
+                            {% endfor %}
                         </div>
                         <div id="remember-password-container">
                             <div class="remember-password-content">
@@ -66,7 +66,6 @@
                             </div>
                         </div>
                         <div class="footer text-center">
-<!--                            <a href="" class="btn btn-primary btn-round btn-lg btn-block">登录</a>-->
                             {{ form.submit(class="btn btn-primary btn-round btn-lg btn-block", value="登录") }}
                         </div>
                     </form>
@@ -74,6 +73,5 @@
             </div>
         </div>
     </div>
-
 </body>
 </html>

@@ -47,7 +47,7 @@
                             </li>
                     </ul>
                     <li>
-                        <a href="#" id="choice_3" onclick="click_trans_change('tag')"">标签管理</a>
+                        <a href="#" id="choice_3" onclick="click_trans_change('tag')">标签管理</a>
                     </li>
                     <ul id="change_3" style="height:auto; display: none; padding-left: 0px;">
                             <li>
@@ -81,7 +81,7 @@
                             <p style="color: red">{{ error }}</p>
                         {% endfor %}
                         <p style="margin-top:30px;">文章URL： {{ siteip }}post/&nbsp;
-                            {{ form.Filename(class = "text notnone_text", placeholder="文件名（不可为空）", oninput="not_none(this, 1)") }}
+                            {{ form.Filename(class = "text notnone_text", placeholder="文件名（不可为空）", oninput="not_none(this, 1)", readonly="") }}
                             &nbsp;.html</p>
                         <p id="informations1" style="margin-left: 300px;"></p>
                         {% for error in form.Filename.errors %}
@@ -143,13 +143,13 @@
                             </ul>
                         </div>
                         <p>标签</p>
-                        <input id="select" readonly>
+                        {{ form.Tag(readonly="", id="select") }}
                             <span id="select_show" ></span>
                             <span id="select_expand">▼</span>
                         <ul class="t_options" id="t_options" style="height: auto; display: none">
-                            <li class="option"  onclick="selectbox(this, 't')" style="display: block">样例1</li>
-                            <li class="option"  onclick="selectbox(this, 't')" style="display: block">样例2</li>
-                            <li class="option"  onclick="selectbox(this, 't')" style="display: block">样例3</li>
+                            {% for i in tags %}
+                                <li class="option" onclick="selectbox(this, 't')" style="display: block">{{ i[1] }}</li>
+                            {% endfor %}
                         </ul>
                         <p>公开度</p>
                                 {{ form.Opendegree }}
@@ -180,7 +180,7 @@
         $(document).ready(function()
         {
         $("#author").click(function(){
-        $(".a_options").slideToggle("1500");
+        $("#a_options").slideToggle("1500");
             });
         $("#select_expand").click(function() {
         $("#t_options").slideToggle("1500");

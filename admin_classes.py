@@ -62,6 +62,7 @@ class aorpWriteForm(FlaskForm):
     Date = StringField("header", validators=[DataRequired(message="该字段不可为空")])
     Filename = StringField("filename", validators=[DataRequired(message="该字段不可为空")])
     Article = TextAreaField("article")
+    Tag = StringField("tag")
     Opendegree = RadioField("choices", choices=[("o", "开放"), ("d", "草稿")])
     Submit=SubmitField("submit")
     Author = StringField("author", validators=[DataRequired(message="该字段不可为空")])
@@ -70,3 +71,18 @@ class TagForm(FlaskForm):
     Name = StringField("name", validators=[DataRequired(message="该字段不可为空")])
     Shortname = StringField("shortname")
     Submit=SubmitField("submit")
+
+class TaglistForm():
+    def __init__(self, tname, tsname, articles, num):
+        self.tagname = tname
+        self.tshortname = tsname
+        self.anum = articles
+        self.number = num
+    def get_tname(self):
+        return self.tagname
+    def get_tsname(self):
+        return self.tshortname
+    def get_articles(self):
+        return self.anum
+    def get_number(self):
+        return self.number

@@ -1,24 +1,24 @@
-                        {% for content in contents %}
-                            <tr>
-                                <td class="search_choose">
-                                    <div>{{ content.get_name() }}</div>
-                                </td>
-                                <td>
-                                    <div>{{ content.get_author() }}</div>
-                                </td>
-                                <td>
-                                    <div>{{ content.get_status() }}</div>
-                                </td>
-                                <td>
-                                    <div>{{ content.get_date() }}</div>
-                                </td>
-                                <td>
-                                    <form action="../post/edit/{{ content.get_file() }}" method="get">
-                                        <input type="submit" class="edit" value="编辑"/>
-                                    </form>
-                                    <form action="../post/delete/{{ content.get_file() }}" method="post" onsubmit="return infor()">
-                                        <input type="submit" class="delete" value="删除"/>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
+{% for content in contents %}
+    <tr>
+        <td class="search_choose">
+            <div>{{ content.get_name() }}</div>
+        </td>
+        <td>
+            <div>{{ content.get_author() }}</div>
+        </td>
+        <td>
+            <div>{{ content.get_status() }}</div>
+        </td>
+        <td>
+            <div>{{ content.get_date() }}</div>
+        </td>
+        <td>
+            <form action="../post/edit/{{ content.get_file() }}" method="get">
+                <input type="submit" class="edit" value="编辑"/>
+            </form>
+            <form action="../post/delete/{{ content.get_file() }}" method="post" onsubmit="return infor()">
+                <input type="submit" class="delete" value="删除"/>
+            </form>
+        </td>
+    </tr>
+{% endfor %}

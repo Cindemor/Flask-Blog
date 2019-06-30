@@ -7,7 +7,7 @@ import pymysql
 import time
 from index_classes import aorp_data, archives_data, index_data
 import re
-from management import setting_view, aorpcreate_view, aorpdelete_view, aorpedit_view, intro_view, login_view, tagcreate_view, aorplist_view, taglist_view
+from management import setting_view, aorpcreate_view, aorport_delete_view, aorport_edit_view, intro_view, login_view, tagcreate_view, aorplist_view, taglist_view
 from admin_classes import aorpForm
 
 app = Flask(__name__)
@@ -252,11 +252,11 @@ app.add_url_rule('/page/<pname>', view_func=aorp_view.as_view('pages'), methods=
 app.add_url_rule('/admin', view_func=login_view.as_view('login'), methods=["GET", "POST"])
 app.add_url_rule('/admin/intro', view_func=intro_view.as_view('introduction'), methods=["GET"])
 app.add_url_rule('/admin/setting', view_func=setting_view.as_view('settings'), methods=["GET", "POST"])
-app.add_url_rule('/admin/<type>/list', view_func=aorplist_view.as_view('aorplist'), methods=["GET", "POST"])
+app.add_url_rule('/admin/<type>/list', view_func=aorplist_view.as_view('aorplist'), methods=["GET"])
 app.add_url_rule('/admin/<type>/create', view_func=aorpcreate_view.as_view('aorpcreate'), methods=["POST", "GET"])
-app.add_url_rule('/admin/<type>/delete/<filename>', view_func=aorpdelete_view.as_view('aorpdelete'), methods=["POST"])
-app.add_url_rule('/admin/<type>/edit/<filename>', view_func=aorpedit_view.as_view('aorpedit'), methods=["POST", "GET"])
-app.add_url_rule('/admin/tag/list', view_func=taglist_view.as_view('taglist'), methods=["POST", "GET"])
+app.add_url_rule('/admin/<type>/delete/<filename>', view_func=aorport_delete_view.as_view('aorpdelete'), methods=["POST"])
+app.add_url_rule('/admin/<type>/edit/<filename>', view_func=aorport_edit_view.as_view('aorpedit'), methods=["POST", "GET"])
+app.add_url_rule('/admin/tag/list', view_func=taglist_view.as_view('taglist'), methods=["GET"])
 app.add_url_rule('/admin/tag/create', view_func=tagcreate_view.as_view('tagcreate'), methods=["POST", "GET"])
 
 if __name__ == '__main__':
